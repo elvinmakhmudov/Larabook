@@ -1,0 +1,54 @@
+set nocompatible
+set t_Co=256
+
+colorscheme xoria256
+
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+
+nmap <C-v> :vertical resize +5<cr>
+nmap <C-b> :NERDTreeToggle<cr>
+
+set showcmd
+
+nmap :sp :rightbelow sp<cr>
+
+nmap :bp :BufSurfBack<cr>
+nmap :bn :BufSurfForward<cr>
+
+highlight Search cterm=underline
+
+imap jj <esc>
+
+execute pathogen#infect()
+
+let mapleader= ","
+let g:mapleader= ","
+
+nmap <leader>w :w!<cr>
+
+set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
+
+" Always show statusline
+set laststatus=2
+set encoding=utf-8
+
+nmap vs :vsplit<cr>
+nmap sp :split<cr>
+
+set number
+
+"for training
+
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
+autocmd VimEnter,BufNewFile,BufReadPost * silent! call HardMode()
+
+nnoremap <leader>h <Esc>:call ToggleHardMode()<CR>
+
+set runtimepath^=~/.vim/bundle/ctrlp.vim
