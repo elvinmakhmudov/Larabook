@@ -18,9 +18,7 @@
                 <li><a href="#">Link</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-
                 @if( $currentUser )
-
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ $currentUser->username }} <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -31,13 +29,10 @@
                             <li><a href="#">Separated link</a></li>
                         </ul>
                     </li>
-
                 @else
-
-                    <li><a href="/login">Log In</a></li>
-
+                    <li>{{ link_to_route('register_path', 'Register') }}</li>
+                    <li>{{ link_to_route('login_path', 'Log In') }}</li>
                 @endif
-
             </ul>
         </div><!-- /.navbar-collapse -->
     </div>
