@@ -17,8 +17,8 @@ class StatusRepository {
             ->save($status);
     }
 
-    public function getAllForUser($userId)
+    public function getAllForUser(User $user)
     {
-        return Status::whereUserId($userId)->get();
+        return $user->statuses()->get();
     }
 } 
