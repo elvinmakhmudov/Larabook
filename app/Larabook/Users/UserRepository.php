@@ -12,4 +12,14 @@ class UserRepository {
     {
         return $user->save();
     }
+
+    /**
+     * List of all users.
+     * @param int $howMany
+     * @return mixed
+     */
+    public function getPaginated($howMany = 25)
+    {
+        return User::simplePaginate($howMany);
+    }
 } 
