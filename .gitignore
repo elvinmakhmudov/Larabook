@@ -9,4 +9,4 @@ Thumbs.db
 
 tests/_output/*
 .idea
-.sass_cache
+.sass_cache/
