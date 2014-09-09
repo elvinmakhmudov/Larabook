@@ -19,12 +19,12 @@ Route::get('/', [
 
 Route::get('register', [
     'as' => 'register_path',
-    'uses' => 'RegistrationController@create'
+    'uses' => 'RegistrationController@show'
 ]);
 
 Route::post('register', [
     'as' => 'register_path',
-    'uses' => 'RegistrationController@store'
+    'uses' => 'RegistrationController@register'
 ]);
 
 /**
@@ -32,29 +32,30 @@ Route::post('register', [
  */
 Route::get('login',[
     'as' => 'login_path',
-    'uses' => 'SessionsController@create'
+    'uses' => 'SessionsController@show'
 ]);
 
 Route::post('login',[
     'as' => 'login_path',
-    'uses' => 'SessionsController@store'
+    'uses' => 'SessionsController@login'
 ]);
 
 Route::get('logout', [
     'as' => 'logout_path',
-    'uses' => 'SessionsController@destroy'
+    'uses' => 'SessionsController@logout'
 ]);
+
 /**
  * Statuses
  */
 Route::get('statuses', [
     'as' => 'statuses_path',
-    'uses' => 'StatusesController@index'
+    'uses' => 'StatusesController@show'
 ]);
 
 Route::post('statuses', [
     'as' => 'statuses_path',
-    'uses' => 'StatusesController@store'
+    'uses' => 'StatusesController@publish'
 ]);
 
 /**
@@ -62,10 +63,10 @@ Route::post('statuses', [
  */
 Route::get('users', [
     'as' => 'users_path',
-    'uses' =>'UsersController@index'
+    'uses' =>'UsersController@users'
 ]);
 
 Route::get('@{username}', [
     'as' => 'profile_path',
-    'uses' => 'UsersController@show'
+    'uses' => 'UsersController@profile'
 ]);

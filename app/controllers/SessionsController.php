@@ -19,9 +19,9 @@ class SessionsController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function show()
 	{
-        return View::make('sessions.create');
+        return View::make('sessions.show');
 	}
 
 
@@ -30,7 +30,7 @@ class SessionsController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function login()
 	{
         $formData = Input::only('email', 'password');
 
@@ -52,7 +52,7 @@ class SessionsController extends \BaseController {
      * Log a user out of Larabook
      * @return mixed
      */
-    public function destroy()
+    public function logout()
     {
         Auth::logout();
 

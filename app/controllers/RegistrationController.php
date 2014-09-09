@@ -23,12 +23,12 @@ class RegistrationController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function show()
 	{
-        return View::make('registration.create');
+        return View::make('registration.show');
 	}
 
-    public function store()
+    public function register()
     {
 
         $this->registrationForm->validate(Input::all());

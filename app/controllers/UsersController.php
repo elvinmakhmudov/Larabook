@@ -22,17 +22,17 @@ class UsersController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function users()
 	{
         $users = $this->userRepository->getPaginated();
 
-		return View::make('users.index')->withUsers($users);
+		return View::make('users.users')->withUsers($users);
 	}
 
-    public function show($username)
+    public function profile($username)
     {
         $user = $this->userRepository->findByUsername($username);
 
-        return View::make('users.show')->withUser($user);
+        return View::make('users.profile')->withUser($user);
     }
 }

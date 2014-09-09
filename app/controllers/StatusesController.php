@@ -20,30 +20,18 @@ class StatusesController extends \BaseController {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function show()
 	{
         $statuses = $this->statusRepository->getAllForUser(Auth::user());
-        return View::make('statuses.index', compact('statuses'));
+        return View::make('statuses.show', compact('statuses'));
 	}
-
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-	    //
-	}
-
 
 	/**
      * Save a new status
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function publish()
 	{
         $input = Input::get();
         $input['userId'] = Auth::id();
@@ -55,54 +43,4 @@ class StatusesController extends \BaseController {
         Flash::message('Your status has been updated');
         return Redirect::back();
 	}
-
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
-
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
-	}
-
-
 }
