@@ -11,9 +11,10 @@ class FunctionalHelper extends \Codeception\Module
     public function signIn()
     {
         $email = 'elvin@mail.ru';
+        $username = 'FooBar';
         $password = '123';
 
-        $this->haveAnAccount(compact('email', 'password'));
+        $this->haveAnAccount(compact('username', 'email', 'password'));
         $I = $this->getModule('Laravel4');
 
         $I->amOnPage('/login');
