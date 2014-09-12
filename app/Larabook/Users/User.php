@@ -9,17 +9,18 @@ use Larabook\Registration\Events\UserHasRegistered;
 use Laracasts\Commander\Events\EventGenerator;
 use Laracasts\Presenter\PresentableTrait;
 
-class User extends Eloquent implements UserInterface, RemindableInterface {
+class User extends Eloquent implements UserInterface, RemindableInterface
+{
 
-	use UserTrait, RemindableTrait, EventGenerator, PresentableTrait, FollowableTrait;
+    use UserTrait, RemindableTrait, EventGenerator, PresentableTrait, FollowableTrait;
 
     protected $fillable = ['username', 'email', 'password'];
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'users';
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
 
     /**
      * Path to presenter for a user.
@@ -27,13 +28,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     protected $presenter = 'Larabook\Users\UserPresenter';
 
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
 
-	protected $hidden = array('password', 'remember_token');
+    protected $hidden = array('password', 'remember_token');
 
     /**
      * Passwords must always be hashed
@@ -41,7 +42,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     public function setPasswordAttribute($password)
     {
-         $this->attributes['password'] = Hash::make($password);
+        $this->attributes['password'] = Hash::make($password);
     }
 
     /**
