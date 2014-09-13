@@ -12,7 +12,7 @@ class SessionsController extends \BaseController {
     public function __construct(SignInForm $signInForm)
     {
         $this->signInForm = $signInForm;
-        $this->beforeFilter('guest', ['except' => 'destroy']);
+        $this->beforeFilter('guest', ['except' => 'logout']);
     }
 	/**
 	 * Show the form for Signing in.

@@ -85,3 +85,8 @@ Route::post('follows', [
     'as' => 'follows_path',
     'uses' => 'FollowsController@follow'
 ]);
+
+/**
+ * Password reset
+ */
+Route: Route::controller('password', 'RemindersController');
