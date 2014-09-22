@@ -89,4 +89,24 @@ Route::post('follows', [
 /**
  * Password reset
  */
-Route: Route::controller('password', 'RemindersController');
+Route::controller('password', 'RemindersController');
+
+/**
+ * Inbox
+ */
+Route::get('inbox', [
+    'as' => 'inbox_path',
+    'uses' => 'InboxController@show'
+]);
+
+Route::post('inbox', [
+    'as' => 'inbox_path',
+    'uses' => 'InboxController@send'
+]);
+
+Route::get('inbox/@{username}', 'InboxController@showDialog');
+
+Event::listen('illuminate.query', function($sql)
+{
+   var_dump($sql);
+});

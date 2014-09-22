@@ -5,6 +5,7 @@ class UserRepository {
 
     /**
      * Persist a user
+     *
      * @param User $user
      * @return mixed
      */
@@ -25,6 +26,7 @@ class UserRepository {
 
     /**
      * Fetch a user by their username.
+     *
      * @param $username
      * @return mixed
      */
@@ -41,8 +43,7 @@ class UserRepository {
      */
     public function findById($id)
     {
-        return User::findOrFail($id);
-    }
+        return User::findOrFail($id); }
 
     /**
      * Follow a Larabook user.

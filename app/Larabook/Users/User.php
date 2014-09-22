@@ -56,6 +56,23 @@ class User extends Eloquent implements UserInterface, RemindableInterface
     }
 
     /**
+     * Remember token methods
+     */
+    public function getRememberToken()
+    {
+        return $this->remember_token;
+    }
+
+    public function setRememberToken($value)
+    {
+        $this->remember_token = $value;
+    }
+
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
+    /**
      * Register a new user
      *
      * @param $username
@@ -85,4 +102,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface
         return $user->username == $this->username;
     }
 
+    /**
+     * A user belongs to many conversations
+     */
+    public function conversations()
+    {
+        return $this->belongsToMany('Larabook\Inbox\Conversation')->latest();
+    }
 }
