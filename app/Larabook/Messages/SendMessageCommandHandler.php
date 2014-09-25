@@ -1,5 +1,6 @@
-<?php namespace Larabook\Inbox;
+<?php namespace Larabook\Messages;
 
+use Larabook\Conversations\Conversation;
 use Larabook\Users\UserRepository;
 use Laracasts\Commander\CommandHandler;
 
@@ -27,6 +28,7 @@ class SendMessageCommandHandler implements CommandHandler {
         $conversation->users()->attach($command->userId);
         $conversation->users()->attach($sendToUser->id);
 
+        //TODO::create send method in Message model that will create a message and raise an event using EventGenerator
         $message = Message::create([
             'user_id' => $command->userId,
             'conversation_id' => $conversation->id,

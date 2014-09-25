@@ -1,4 +1,4 @@
-<?php namespace Larabook\Inbox;
+<?php namespace Larabook\Conversations;
 
 class Conversation extends \Eloquent {
 	protected $fillable = [];
@@ -16,6 +16,6 @@ class Conversation extends \Eloquent {
      */
     public function messages()
     {
-        return $this->hasMany('Larabook\Inbox\Message')->oldest();
+        return $this->hasMany('Larabook\Messages\Message')->latest();
     }
 }

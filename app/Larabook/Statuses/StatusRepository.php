@@ -17,11 +17,6 @@ class StatusRepository {
             ->save($status);
     }
 
-    public function getAllForUser(User $user)
-    {
-        return $user->statuses()->with('user')->latest()->get();
-    }
-
     /**
      * Get the feed for a user.
      *
@@ -31,9 +26,9 @@ class StatusRepository {
     public function getFeedForUser(User $user)
     {
         $userIds = $user->followedUsers()->lists('followed_id');
+        //to show own statuses
         $userIds[] = $user->id;
 
-        return Status::whereIn('user_id', $userIds)->latest()->get();
-
+        return Status::whereIn('user_id', $userIds)->latest()->with('user')->get();
     }
 } 

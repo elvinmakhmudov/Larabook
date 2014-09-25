@@ -94,6 +94,7 @@ Route::controller('password', 'RemindersController');
 /**
  * Inbox
  */
+
 Route::get('inbox', [
     'as' => 'inbox_path',
     'uses' => 'InboxController@show'
@@ -104,9 +105,9 @@ Route::post('inbox', [
     'uses' => 'InboxController@send'
 ]);
 
-Route::get('inbox/@{username}', 'InboxController@showDialog');
 
-Event::listen('illuminate.query', function($sql)
-{
-   var_dump($sql);
-});
+//listen to mysql event
+//Event::listen('illuminate.query', function($sql)
+//{
+//    var_dump($sql);
+//});

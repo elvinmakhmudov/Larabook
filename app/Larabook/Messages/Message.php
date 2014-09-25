@@ -1,4 +1,4 @@
-<?php namespace Larabook\Inbox;
+<?php namespace Larabook\Messages;
 
 class Message extends \Eloquent {
 	protected $fillable = ['user_id', 'conversation_id', 'content'];
@@ -9,7 +9,7 @@ class Message extends \Eloquent {
      */
     public function conversation()
     {
-        return $this->belongsTo('Conversation');
+        return $this->belongsTo('Larabook\Conversations\Conversation');
     }
 
     public function sender()

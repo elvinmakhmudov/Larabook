@@ -31,7 +31,7 @@ class UsersController extends \BaseController {
 
     public function profile($username)
     {
-        $user = $this->userRepository->findByUsername($username);
+        $user = $this->userRepository->findByUsernameWithStatuses($username);
 
         return View::make('users.profile')->withUser($user);
     }

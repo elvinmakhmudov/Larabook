@@ -36,7 +36,7 @@ class UserRepositoryTest extends \Codeception\TestCase\Test
         $username = $statuses[2]->user->username;
 
         //when
-        $user = $this->repo->findByUsername($username);
+        $user = $this->repo->findByUsernameWithStatuses($username);
 
         //then
         $this->assertEquals($username, $user->username);

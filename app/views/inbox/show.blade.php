@@ -6,9 +6,7 @@
             @include('inbox.partials.conversations')
         </div>
         <div class="col-md-7">
-            @foreach($convs as $conv)
-                @include('inbox.partials.messages')
-            @endforeach
+            @include('inbox.partials.messages', ['conv' => $mainConv])
             @include('inbox.partials.send-message-form')
             <article class="media">
                 <div class="pull-left">

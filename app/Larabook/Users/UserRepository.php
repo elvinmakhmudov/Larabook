@@ -25,14 +25,27 @@ class UserRepository {
     }
 
     /**
-     * Fetch a user by their username.
+     * Fetch a user by their username with his statuses.
+     *
+     * TODO::get rid of this function
+     *
+     * @param $username
+     * @return mixed
+     */
+    public function findByUsernameWithStatuses($username)
+    {
+         return User::with('statuses.user')->whereUsername($username)->firstOrFail();
+    }
+
+    /**
+     * Fetch a user by their username with their statuses.
      *
      * @param $username
      * @return mixed
      */
     public function findByUsername($username)
     {
-         return User::with('statuses')->whereUsername($username)->first();
+        return User::whereUsername($username)->firstOrFail();
     }
 
     /**

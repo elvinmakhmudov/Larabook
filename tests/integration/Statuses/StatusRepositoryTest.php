@@ -32,7 +32,7 @@ class StatusRepositoryTest extends \Codeception\TestCase\Test
             'body' => 'His status'
         ]);
 
-        $statusesForUser = $this->repo->getAllForUser($users[0]);
+        $statusesForUser = $users[0]->statuses;
 
         $this->assertCount(2, $statusesForUser);
         $this->assertEquals('My status', $statusesForUser[0]->body);

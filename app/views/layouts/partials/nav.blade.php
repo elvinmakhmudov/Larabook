@@ -15,7 +15,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li class="active">{{ link_to_route('users_path', 'Browse All') }}</li>
-                @if(Auth::check())
+                @if($signedIn)
                     <li>{{ link_to_route('inbox_path', 'Messages') }}</li>
                 @endif
             </ul>

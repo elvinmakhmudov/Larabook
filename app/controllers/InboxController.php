@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Validator;
-use Larabook\Inbox\Conversation;
-use Larabook\Inbox\InboxRepository;
-use Larabook\Inbox\SendMessageCommand;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Larabook\Conversations\ConversationRepository;
+use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
 use Larabook\Users\UserRepository;
 
@@ -12,41 +11,46 @@ class InboxController extends \BaseController {
     public $sendMessageForm;
 
     public $userRepository;
-    /**
-     * @var InboxRepository
-     */
-    private $inboxRepository;
 
-    /**
-     * @param SendMessageForm $sendMessageForm
-     * @param UserRepository $userRepository
-     * @param InboxRepository $inboxRepository
-     */
-    function __construct(SendMessageForm $sendMessageForm, UserRepository $userRepository, InboxRepository $inboxRepository)
+    private $conversationRepository;
+
+    function __construct(SendMessageForm $sendMessageForm, UserRepository $userRepository, ConversationRepository $conversationRepository)
     {
         $this->sendMessageForm = $sendMessageForm;
         $this->userRepository = $userRepository;
-        $this->inboxRepository = $inboxRepository;
+        $this->conversationRepository = $conversationRepository;
     }
 
     /**
-     * Display the messages.
+     * Show dialog with user
      *
-     * @internal param int $id
-     * @return Response
+     * @return array
      */
-	public function show()
-	{
-        // get the username of the last conversation
-//        $convs = Auth::user()->conversations->last()->messages->last()->sender->username;
-        $username = $this->inboxRepository->getOtherUserInConversation(Auth::user()->conversations->last(), Auth::user());
+    public function show()
+    {
+        //TODO::find out is it necessary to validate the get data
+        $username = Input::get('u');
+        $user = Auth::user();
 
-        dd($username);
+        //TODO::if possible minimize the code somehow
+        try {
+            //get the user by username
+            $otherUser = $this->userRepository->findbyUsername($username);
 
-        dd($convs);
+            //get the conversation between users
+            $mainConv = $this->conversationRepository->getConversationWith($otherUser);
 
-        return View::make('inbox.show')->withConvs($convs);
-	}
+        } catch(ModelNotFoundException $e) {
+
+            $mainConv = $this->conversationRepository->getLastConversationFor($user);
+        }
+
+        //get the all convs previews
+        $previews= $this->conversationRepository->getPreviews($user);
+
+        return View::make('inbox.show')->withPreviews($previews)
+                                       ->with('mainConv', $mainConv);
+    }
 
     /**
      * Send a message
@@ -61,27 +65,5 @@ class InboxController extends \BaseController {
         $this->execute(SendMessageCommand::class, $input);
 
         return Redirect::back();
-    }
-
-    /**
-     * Show dialog with user
-     *
-     * @param $username
-     * @return array
-     */
-    public function showDialog($username)
-    {
-        $validator = Validator::make(['username' => $username],
-                                     ['username' => 'required']);
-
-        if($validator->fails()) return Redirect::home();
-
-        $otherUser = $this->userRepository->findbyUsername($username);
-
-        $convId = $this->inboxRepository->getConversationId(Auth::user(), $otherUser);
-
-        $conv = Conversation::find($convId)->with('messages', 'users');
-
-        return View::make('inbox.showDialog')->withConv($conv);
     }
 }

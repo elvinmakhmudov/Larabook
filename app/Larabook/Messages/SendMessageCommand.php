@@ -1,4 +1,4 @@
-<?php namespace Larabook\Inbox;
+<?php namespace Larabook\Messages;
 
 class SendMessageCommand {
 
