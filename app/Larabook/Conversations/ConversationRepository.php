@@ -11,10 +11,10 @@ class ConversationRepository {
      * @param User $user
      * @return array
      */
-    public function getPreviews(User $user)
+    public function getPreviews()
     {
         //get the conversations with messages and sender to minimize mysql queries
-        $convs = $user->conversations()->with('messages.sender', 'users')->get();
+        $convs = Auth::user()->conversations()->with('messages.sender', 'users')->get();
 
         $samples = [];
         foreach($convs as $conv)
@@ -22,7 +22,7 @@ class ConversationRepository {
             //first() method because in the messages relationship we get the messages with latest() method
             $lastMessage = $conv->messages->first();
 
-            $otherUsername = $this->getOtherUserInConversation($conv, $user);
+            $otherUsername = $this->getOtherUserInConversation($conv);
 
             //TODO::bad code
             $previews[] = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
@@ -80,12 +80,12 @@ class ConversationRepository {
      * Get the other user's username in the conversation that is not the current user's username
      *
      * @param $conversation
-     * @param User $currentUser
      * @return mixed
     @internal param User $user
      */
-    public function getOtherUserInConversation(Conversation $conversation, User $currentUser)
+    public function getOtherUserInConversation(Conversation $conversation)
     {
+        $currentUser = Auth::user();
         $usersInConversation = $conversation->users;
 
         //save user's usernames that are in the conversation to an array
@@ -119,9 +119,9 @@ class ConversationRepository {
         }
     }
 
-    public function getLastConversationFor(User $user)
+    public function getLastConversation()
     {
         //first() method because in the conversations relationship we get the conversations with latest() method
-        return $user->conversations()->with('messages.sender')->first();
+        return Auth::user()->conversations()->with('messages.sender')->firstOrFail();
     }
 }

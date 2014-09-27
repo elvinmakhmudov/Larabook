@@ -1,5 +1,5 @@
 <div class="messages">
-    @foreach($conv->messages as $message)
+    @foreach($conv->messages->reverse() as $message)
         <article class="media">
             <div class="pull-left">
                 @include('users.partials.avatar', ['user' => $message->sender ])
@@ -11,4 +11,6 @@
             </div>
         </article>
     @endforeach
+
+    @include('inbox.partials.reply-to-form')
 </div>

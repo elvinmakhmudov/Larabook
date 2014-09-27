@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Larabook\Conversations\ConversationRepository;
+use Larabook\Conversations\getConversationCommand;
 use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
 use Larabook\Users\UserRepository;
@@ -29,27 +30,17 @@ class InboxController extends \BaseController {
     public function show()
     {
         //TODO::find out is it necessary to validate the get data
-        $username = Input::get('u');
-        $user = Auth::user();
+        $input = [
+            'sendToUsername' => Input::get('u')
+        ];
 
-        //TODO::if possible minimize the code somehow
-        try {
-            //get the user by username
-            $otherUser = $this->userRepository->findbyUsername($username);
-
-            //get the conversation between users
-            $mainConv = $this->conversationRepository->getConversationWith($otherUser);
-
-        } catch(ModelNotFoundException $e) {
-
-            $mainConv = $this->conversationRepository->getLastConversationFor($user);
-        }
+        $conversation = $this->execute(getConversationCommand::class, $input);
 
         //get the all convs previews
-        $previews= $this->conversationRepository->getPreviews($user);
+        $previews= $this->conversationRepository->getPreviews();
 
         return View::make('inbox.show')->withPreviews($previews)
-                                       ->with('mainConv', $mainConv);
+                                       ->withConversation($conversation);
     }
 
     /**
