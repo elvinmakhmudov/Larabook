@@ -1,6 +1,8 @@
 <?php namespace Larabook\Users;
 
 
+use Larabook\Users\Exceptions\UserNotFoundException;
+
 class UserRepository {
 
     /**
@@ -41,11 +43,16 @@ class UserRepository {
      * Fetch a user by their username with their statuses.
      *
      * @param $username
+     * @throws UserNotFoundException
      * @return mixed
      */
     public function findByUsername($username)
     {
-        return User::whereUsername($username)->firstOrFail();
+        $user =  User::whereUsername($username)->first();
+
+        if( ! is_null($user)) return $user;
+
+        throw new UserNotFoundException;
     }
 
     /**

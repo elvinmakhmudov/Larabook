@@ -11,7 +11,7 @@ $I->haveAnAccount(['username' => 'OtherUser']);
 $I->signIn();
 $I->click('Messages');
 $I->seeCurrentUrlEquals('/inbox');
-$I->fillField('send to','OtherUser');
+$I->fillField('Send to:','OtherUser');
 $I->fillField('Message:','some random message');
 $I->click('Send');
 
@@ -19,4 +19,5 @@ $I->click('Send');
 $I->seeCurrentUrlEquals('/inbox');
 $I->see('OtherUser');
 $I->click('OtherUser');
+$I->seeCurrentUrlEquals('/inbox?u=OtherUser');
 $I->see('some random message');

@@ -6,7 +6,9 @@
             @include('inbox.partials.previews')
         </div>
         <div class="col-md-7">
-            @include('inbox.partials.messages', ['conv' => $conversation])
+
+            @include('inbox.partials.dialog', ['conv' => $conversation])
+
             <article class="media">
                 <div class="pull-left">
                     @include('users.partials.avatar', ['user' => $currentUser ])
@@ -15,6 +17,7 @@
                     @include('users.partials.avatar', ['user' => $currentUser ])
                 </div>
             </article>
+
         </div>
     </div>
 @stop

@@ -1,8 +1,8 @@
 <?php namespace Larabook\Messages;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Larabook\Conversations\Conversation;
 use Larabook\Conversations\ConversationRepository;
+use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\UserRepository;
 use Laracasts\Commander\CommandHandler;
 
@@ -34,8 +34,8 @@ class SendMessageCommandHandler implements CommandHandler {
 
             $conversation = $this->conversationRepository->getConversationWith($sendToUser);
 
-        } catch(ModelNotFoundException $e){
-            //if conversation does not exist create one and attach the users
+        } catch(ConversationNotFoundException $e){
+            //if conversation does not exist create one and attach the users to its table
 
             $conversation = Conversation::create([]);
 
@@ -50,7 +50,6 @@ class SendMessageCommandHandler implements CommandHandler {
             'conversation_id' => $conversation->id,
             'content' => $command->message
         ]);
-
     }
 
 }

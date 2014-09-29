@@ -1,6 +1,7 @@
 <?php  namespace Larabook\Conversations;
 
 use Illuminate\Support\Facades\Auth;
+use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\User;
 
 class ConversationRepository {
@@ -16,7 +17,7 @@ class ConversationRepository {
         //get the conversations with messages and sender to minimize mysql queries
         $convs = Auth::user()->conversations()->with('messages.sender', 'users')->get();
 
-        $samples = [];
+        $previews= [];
         foreach($convs as $conv)
         {
             //first() method because in the messages relationship we get the messages with latest() method
@@ -30,12 +31,14 @@ class ConversationRepository {
 
         return $previews;
     }
+
     /**
      * Get conversation id of the conversation between users
      *
      * @internal param User $user
      * @internal param User $otherUser
      * @param User $otherUser
+     * @throws ConversationNotFoundException
      * @return array
      */
     public function getConversationWith(User $otherUser)
@@ -51,7 +54,12 @@ class ConversationRepository {
 
         $convId = $this->getSingleValueInArray($matches);
 
-        return Conversation::with('messages.sender')->findOrFail($convId);
+        $conversation = Conversation::with('messages.sender')->find($convId);
+
+        //if not found throw an exception
+        if( ! is_null($conversation)) return $conversation;
+
+        throw new ConversationNotFoundException;
     }
 
     /**
@@ -122,6 +130,6 @@ class ConversationRepository {
     public function getLastConversation()
     {
         //first() method because in the conversations relationship we get the conversations with latest() method
-        return Auth::user()->conversations()->with('messages.sender')->firstOrFail();
+        return Auth::user()->conversations()->with('messages.sender')->first();
     }
 }
