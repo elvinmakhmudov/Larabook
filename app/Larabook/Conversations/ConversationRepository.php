@@ -9,7 +9,6 @@ class ConversationRepository {
     /**
      * Get all samples of the user's conversations
      *
-     * @param User $user
      * @return array
      */
     public function getPreviews()
@@ -33,18 +32,15 @@ class ConversationRepository {
     }
 
     /**
-     * Get conversation id of the conversation between users
+     * Get conversation between users
      *
-     * @internal param User $user
-     * @internal param User $otherUser
+     * @param User $user
      * @param User $otherUser
      * @throws ConversationNotFoundException
      * @return array
      */
-    public function getConversationWith(User $otherUser)
+    public function getConversationBetween(User $user, User $otherUser)
     {
-        //get the current user
-        $user = Auth::user();
 
         $userConvIds = $this->userConversationIds($user);
         $otherUserConvIds = $this->userConversationIds($otherUser);
@@ -55,6 +51,7 @@ class ConversationRepository {
         $convId = $this->getSingleValueInArray($matches);
 
         $conversation = Conversation::with('messages.sender')->find($convId);
+
 
         //if not found throw an exception
         if( ! is_null($conversation)) return $conversation;
@@ -69,9 +66,9 @@ class ConversationRepository {
      * @param User $user
      * @return array
      */
-    protected function userConversationIds(User $user)
+    public function userConversationIds(User $user)
     {
-        $conversations = $user->conversations;
+        $conversations = $user->conversations()->get();
 
         $conversationIds = [];
 

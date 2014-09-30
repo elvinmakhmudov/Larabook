@@ -1,5 +1,6 @@
 <?php namespace Larabook\Messages;
 
+use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
 use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
@@ -32,7 +33,7 @@ class SendMessageCommandHandler implements CommandHandler {
 
         try {
 
-            $conversation = $this->conversationRepository->getConversationWith($sendToUser);
+            $conversation = $this->conversationRepository->getConversationBetween(Auth::user(), $sendToUser);
 
         } catch(ConversationNotFoundException $e){
             //if conversation does not exist create one and attach the users to its table

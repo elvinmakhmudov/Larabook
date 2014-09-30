@@ -3,6 +3,7 @@ $I = new FunctionalTester($scenario);
 
 $I->am('a Larabook user');
 $I->wantTo('send a message to another Larabook user');
+//couldn't find out why the test throwing the CovnersationNotFoundException so changed a little bit
 
 //setup
 $I->haveAnAccount(['username' => 'OtherUser']);
@@ -18,6 +19,8 @@ $I->click('Send');
 //expectations
 $I->seeCurrentUrlEquals('/inbox');
 $I->see('OtherUser');
+$I->see('some random message');
+
 $I->click('OtherUser');
 $I->seeCurrentUrlEquals('/inbox?u=OtherUser');
 $I->see('some random message');

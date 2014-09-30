@@ -11,3 +11,16 @@ Larabook\Statuses\Status:
   body: $string
   created_at: $date
   updated_at: $date
+
+Larabook\Conversations\Conversation:
+  created_at: $date
+  updated_at: $date
+
+Larabook\Messages\Message:
+  user_id:
+    type: Larabook\Users\User
+  conversation_id:
+    type: Larabook\Conversations\Conversation
+  content: $string
+  created_at: $date
+  updated_at: $date
