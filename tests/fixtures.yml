@@ -2,19 +2,19 @@ Larabook\Users\User:
   username: $string$integer
   email: $string$integer@example.com
   password: $string
-  created_at: $date
-  updated_at: $date
+#  created_at: $date
+#  updated_at: $date
 
 Larabook\Statuses\Status:
   user_id:
     type: Larabook\Users\User
   body: $string
-  created_at: $date
-  updated_at: $date
+#  created_at: $date
+#  updated_at: $date
 
 Larabook\Conversations\Conversation:
-  created_at: $date
-  updated_at: $date
+#  created_at: $date
+#  updated_at: $date
 
 Larabook\Messages\Message:
   user_id:
@@ -22,5 +22,5 @@ Larabook\Messages\Message:
   conversation_id:
     type: Larabook\Conversations\Conversation
   content: $string
-  created_at: $date
-  updated_at: $date
+#  created_at: $date
+#  updated_at: $date

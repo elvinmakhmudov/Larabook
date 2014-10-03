@@ -38,11 +38,11 @@ class getConversationCommandHandler implements CommandHandler {
         } catch(UserNotFoundException $e) {
 
             //if the user not found get the last conversation
-            $mainConv = $this->conversationRepository->getLastConversation();
+            $mainConv = $this->conversationRepository->getLastConversation(Auth::user());
         } catch(ConversationNotFoundException $e) {
 
             //if the conversation not found get the last conversation
-            $mainConv = $this->conversationRepository->getLastConversation();
+            $mainConv = $this->conversationRepository->getLastConversation(Auth::user());
         }
 
         return $mainConv;

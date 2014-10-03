@@ -37,7 +37,7 @@ class InboxController extends \BaseController {
         $conversation = $this->execute(getConversationCommand::class, $input);
 
         //get the all convs previews
-        $previews= $this->conversationRepository->getPreviews();
+        $previews= $this->conversationRepository->getPreviews(Auth::user());
 
         return View::make('inbox.show')->withPreviews($previews)
                                        ->withConversation($conversation);

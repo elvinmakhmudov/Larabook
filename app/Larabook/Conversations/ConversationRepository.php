@@ -1,6 +1,5 @@
 <?php  namespace Larabook\Conversations;
 
-use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\User;
 
@@ -9,12 +8,13 @@ class ConversationRepository {
     /**
      * Get all samples of the user's conversations
      *
+     * @param User $user
      * @return array
      */
-    public function getPreviews()
+    public function getPreviews(User $user)
     {
         //get the conversations with messages and sender to minimize mysql queries
-        $convs = Auth::user()->conversations()->with('messages.sender', 'users')->get();
+        $convs = $user->conversations()->with('messages.sender', 'users')->get();
 
         $previews= [];
         foreach($convs as $conv)
@@ -22,7 +22,7 @@ class ConversationRepository {
             //first() method because in the messages relationship we get the messages with latest() method
             $lastMessage = $conv->messages->first();
 
-            $otherUsername = $this->getOtherUserInConversation($conv);
+            $otherUsername = $this->getOtherUserInConversation($conv, $user);
 
             //TODO::bad code
             $previews[] = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
@@ -52,7 +52,6 @@ class ConversationRepository {
 
         $conversation = Conversation::with('messages.sender')->find($convId);
 
-
         //if not found throw an exception
         if( ! is_null($conversation)) return $conversation;
 
@@ -66,7 +65,7 @@ class ConversationRepository {
      * @param User $user
      * @return array
      */
-    public function userConversationIds(User $user)
+    protected function userConversationIds(User $user)
     {
         $conversations = $user->conversations()->get();
 
@@ -84,13 +83,13 @@ class ConversationRepository {
     /**
      * Get the other user's username in the conversation that is not the current user's username
      *
-     * @param $conversation
+     * @param Conversation $conversation
+     * @param User $currentUser
      * @return mixed
     @internal param User $user
      */
-    public function getOtherUserInConversation(Conversation $conversation)
+    public function getOtherUserInConversation(Conversation $conversation, User $currentUser)
     {
-        $currentUser = Auth::user();
         $usersInConversation = $conversation->users;
 
         //save user's usernames that are in the conversation to an array
@@ -124,9 +123,9 @@ class ConversationRepository {
         }
     }
 
-    public function getLastConversation()
+    public function getLastConversation(User $user)
     {
         //first() method because in the conversations relationship we get the conversations with latest() method
-        return Auth::user()->conversations()->with('messages.sender')->first();
+        return $user->conversations()->with('messages.sender')->first();
     }
 }
