@@ -1,61 +1,169 @@
 <?php  namespace Larabook\Conversations;
 
+use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\User;
 
 class ConversationRepository {
 
+    public $currentUser;
+
+
+    public function __construct()
+    {
+        $this->currentUser = Auth::user();
+    }
+
     /**
      * Get all samples of the user's conversations
      *
-     * @param User $user
      * @return array
      */
-    public function getPreviews(User $user)
+    public function getPreviews()
     {
         //get the conversations with messages and sender to minimize mysql queries
-        $convs = $user->conversations()->with('messages.sender', 'users')->get();
+        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get();
 
         $previews= [];
         foreach($convs as $conv)
         {
-            //first() method because in the messages relationship we get the messages with latest() method
-            $lastMessage = $conv->messages->first();
-
-            $otherUsername = $this->getOtherUserInConversation($conv, $user);
-
-            //TODO::bad code
-            $previews[] = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
+            //if the conversation is shown for the current user make a preview
+            if($this->isShown($conv))
+            {
+                $previews[] = $this->makePreviewFor($conv);
+            }
         }
 
         return $previews;
     }
 
     /**
+     * Make a preview for the conversation
+     *
+     * @param Conversation $conv
+     * @return \Larabook\Conversations\ConversationPreview
+     */
+    public function makePreviewFor(Conversation $conv)
+    {
+        //first() method because in the messages relationship we get the messages with latest() method
+        $lastMessage = $conv->messages->first();
+
+        $otherUsername = $conv->otherUserInConversation;
+
+        //TODO::bad code
+        $preview = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
+
+        return $preview;
+    }
+
+    /**
      * Get conversation between users
      *
-     * @param User $user
      * @param User $otherUser
      * @throws ConversationNotFoundException
      * @return array
      */
+    public function getConversationWith(User $otherUser)
+    {
+        $conversation = $this->getConversationBetween($this->currentUser, $otherUser);
+
+        //if the the conversation is shown for the current user
+        if ($this->isShown($conversation))
+        {
+            return $conversation;
+        }
+    }
+
+    /**
+     * Get conversation between 2 users
+     *
+     * @param User $user
+     * @param User $otherUser
+     * @return mixed
+     * @throws ConversationNotFoundException
+     */
     public function getConversationBetween(User $user, User $otherUser)
     {
-
-        $userConvIds = $this->userConversationIds($user);
-        $otherUserConvIds = $this->userConversationIds($otherUser);
-
-        //returns an array containing all the values of $convsIds[0] that are present in all the $convsIds array.
-        $matches = array_intersect($userConvIds, $otherUserConvIds);
-
-        $convId = $this->getSingleValueInArray($matches);
+        $convId = $this->getCommonConversationId($user, $otherUser);
 
         $conversation = Conversation::with('messages.sender')->find($convId);
 
-        //if not found throw an exception
         if( ! is_null($conversation)) return $conversation;
 
         throw new ConversationNotFoundException;
+    }
+
+    /**
+     * Get the common conversation id
+     *
+     * @param User $user
+     * @param User $otherUser
+     * @return mixed
+     */
+    public function getCommonConversationId(User $user, User $otherUser)
+    {
+        $currentUserConvIds= $this->userConversationIds($user);
+        $otherUserConvIds = $this->userConversationIds($otherUser);
+
+        //returns an array containing all the values of $convsIds[0] that are present in all the $convsIds array.
+        $matches = array_intersect($currentUserConvIds, $otherUserConvIds);
+
+        $convId = $this->getSingleValueInArray($matches);
+
+        return $convId;
+    }
+
+    /**
+     * Get the single value contained in the array regardless of the key
+     *
+     * @param $array
+     * @return mixed
+     */
+    protected  function getSingleValueInArray($array)
+    {
+        $array = array_values($array);
+
+        if ( $array )
+        {
+            return $array[0];
+        }
+    }
+
+    /**
+     * Is the conversation shown for the current user
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function isShown(Conversation $conversation)
+    {
+        $user = $this->currentUser;
+
+        $hiddenConvs = $this->getHiddenConvs($user);
+
+        $shown = ! in_array( $conversation->id, $hiddenConvs);
+
+        return $shown;
+    }
+
+    /**
+     * Get user's hidden conversation Ids
+     *
+     * @param User $user
+     * @return array
+     */
+    public function getHiddenConvs(User $user)
+    {
+        $hiddenConvs = [];
+        foreach($user->conversations as $conv)
+        {
+            if($conv->pivot->hidden == true)
+            {
+                $hiddenConvs[] = $conv->id;
+            }
+        }
+
+        return $hiddenConvs;
     }
 
     /**
@@ -79,53 +187,22 @@ class ConversationRepository {
         return $conversationIds;
     }
 
-
     /**
-     * Get the other user's username in the conversation that is not the current user's username
+     * Get the last shown conversation for the user
      *
-     * @param Conversation $conversation
-     * @param User $currentUser
-     * @return mixed
-    @internal param User $user
-     */
-    public function getOtherUserInConversation(Conversation $conversation, User $currentUser)
-    {
-        $usersInConversation = $conversation->users;
-
-        //save user's usernames that are in the conversation to an array
-        $usernames = [];
-        foreach ($usersInConversation as $user) {
-            $usernames[] = $user->username;
-        }
-
-        // remove from the array the current user's username
-        if(( $key = array_search( $currentUser->username , $usernames)) !== false) {
-            unset($usernames[$key]);
-        }
-
-        return $this->getSingleValueInArray($usernames);
-    }
-
-
-    /**
-     * Get the single value contained in the array regardless of the key
-     *
-     * @param $array
      * @return mixed
      */
-    protected  function getSingleValueInArray($array)
+    public function getLastConversation()
     {
-        $array = array_values($array);
+        $convs = $this->currentUser->conversations()->with('messages.sender')->get();
 
-        if ( $array )
+        //the next conversation always will be the latest one cause we grabbed all conversations with latest() method
+        foreach($convs as $conv)
         {
-            return $array[0];
+            if( $this->isShown($conv))
+            {
+                return $conv;
+            }
         }
-    }
-
-    public function getLastConversation(User $user)
-    {
-        //first() method because in the conversations relationship we get the conversations with latest() method
-        return $user->conversations()->with('messages.sender')->first();
     }
 }

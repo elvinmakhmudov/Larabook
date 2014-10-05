@@ -39,7 +39,7 @@ class Conversation extends \Eloquent {
         }
 
         // remove from the array the current user's username
-        if(( $key = array_search( $currentUser->username , $usernames)) !== false) {
+        if(( $key = array_search( $currentUser->username, $usernames)) !== false) {
             unset($usernames[$key]);
         }
 

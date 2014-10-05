@@ -33,7 +33,7 @@ class SendMessageCommandHandler implements CommandHandler {
 
         try {
 
-            $conversation = $this->conversationRepository->getConversationBetween(Auth::user(), $sendToUser);
+            $conversation = $this->conversationRepository->getConversationWith($sendToUser);
 
         } catch(ConversationNotFoundException $e){
             //if conversation does not exist create one and attach the users to its table

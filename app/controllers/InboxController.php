@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Larabook\Conversations\ConversationRepository;
+use Larabook\Conversations\deleteConversationCommand;
 use Larabook\Conversations\getConversationCommand;
 use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
@@ -37,7 +38,7 @@ class InboxController extends \BaseController {
         $conversation = $this->execute(getConversationCommand::class, $input);
 
         //get the all convs previews
-        $previews= $this->conversationRepository->getPreviews(Auth::user());
+        $previews= $this->conversationRepository->getPreviews();
 
         return View::make('inbox.show')->withPreviews($previews)
                                        ->withConversation($conversation);
@@ -56,5 +57,24 @@ class InboxController extends \BaseController {
         $this->execute(SendMessageCommand::class, $input);
 
         return Redirect::back();
+    }
+
+    /**
+     * Delete a conversation
+     */
+    public function delete()
+    {
+        //TODO::find out is it necessary to validate the get data
+        $input = [
+            'otherUsername' => Input::get('otherUsername')
+        ];
+
+        $conversation = $this->execute(deleteConversationCommand::class, $input);
+
+        //get the all convs previews
+        $previews= $this->conversationRepository->getPreviews();
+
+        return View::make('inbox.show')->withPreviews($previews)
+            ->withConversation($conversation);
     }
 }

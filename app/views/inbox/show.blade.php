@@ -7,16 +7,8 @@
         </div>
         <div class="col-md-7">
 
-            @include('inbox.partials.dialog', ['conv' => $conversation])
 
-            <article class="media">
-                <div class="pull-left">
-                    @include('users.partials.avatar', ['user' => $currentUser ])
-                </div>
-                <div class="pull-right">
-                    @include('users.partials.avatar', ['user' => $currentUser ])
-                </div>
-            </article>
+            @include('inbox.partials.dialog', ['conv' => $conversation])
 
         </div>
     </div>

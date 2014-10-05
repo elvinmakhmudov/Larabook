@@ -105,6 +105,10 @@ Route::post('inbox', [
     'uses' => 'InboxController@send'
 ]);
 
+Route::delete('inbox', [
+    'as' => 'inbox_path',
+    'uses' => 'InboxController@delete'
+]);
 
 //listen to mysql event
 //Event::listen('illuminate.query', function($sql)

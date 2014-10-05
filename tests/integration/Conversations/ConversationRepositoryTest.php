@@ -1,6 +1,7 @@
 <?php
 
 
+use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
 use Larabook\Conversations\ConversationRepository;
 use Laracasts\TestDummy\Factory as TestDummy;
@@ -15,25 +16,30 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->repo = new ConversationRepository();
+        $this->repo = new ConversationRepository;
+
+        $user = $this->tester->signIn();
+        $this->repo->currentUser = $user;
     }
 
     public function mainSetup()
     {
-        $users = TestDummy::times(2)->create('Larabook\Users\User');
+        $user = $this->repo->currentUser;
+        $otherUser= TestDummy::create('Larabook\Users\User');
 
         $conversation = Conversation::create([]);
 
         $message= TestDummy::create('Larabook\Messages\Message',[
-            'user_id' => $users[0]->id,
+            'user_id' => $user->id,
             'conversation_id' => $conversation->id
         ]);
 
-        $conversation->users()->attach($users[0]->id);
-        $conversation->users()->attach($users[1]->id);
+        $conversation->users()->attach($user->id);
+        $conversation->users()->attach($otherUser->id);
 
         $result = [
-            'users' => $users,
+            'user' => $user,
+            'otherUser' => $otherUser,
             'conversation' => $conversation,
             'message' => $message
         ];
@@ -47,7 +53,7 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     {
         $main = $this->mainSetup();
 
-        $gotConversation = $this->repo->getConversationBetween($main['users'][0], $main['users'][1]);
+        $gotConversation = $this->repo->getConversationWith($main['otherUser']);
 
         $this->assertEquals($main['conversation']->id, $gotConversation->id);
 
@@ -59,9 +65,9 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     {
         $main = $this->mainSetup();
 
-        $otherUserUsername = $this->repo->getOtherUserInConversation($main['conversation'], $main['users'][0]);
+        $otherUserUsername = $main['conversation']->otherUserInConversation;
 
-        $this->assertEquals($otherUserUsername, $main['users'][1]->username);
+        $this->assertEquals($otherUserUsername, $main['otherUser']->username);
     }
 
     /** @test */
@@ -69,20 +75,19 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     {
         $main = $this->mainSetup();
 
-        $previews = $this->repo->getPreviews($main['users'][0]);
+        $previews = $this->repo->getPreviews();
 
         foreach($previews as $preview)
         {
             $this->assertEquals($preview->sender, $main['message']->sender->username);
 
-            $otherUserUsername = $this->repo->getOtherUserInConversation($main['conversation'], $main['users'][0]);
+            $otherUserUsername = $main['conversation']->otherUserInConversation;
             $this->assertEquals($preview->otherUser, $otherUserUsername);
 
             $this->assertEquals($preview->content, $main['message']->content);
         }
     }
 
-    //TODO::find out why the test fails
     /** @test */
     public function it_gets_the_last_conversation()
     {
@@ -93,9 +98,9 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
 
         $conversation = Conversation::create([]);
 
-        $conversation->users()->attach($main['users'][0]->id);
+        $conversation->users()->attach($main['user']->id);
 
-        $last = $this->repo->getLastConversation($main['users'][0]);
+        $last = $this->repo->getLastConversation();
 
         $this->assertEquals($last->id, $conversation->id);
     }
