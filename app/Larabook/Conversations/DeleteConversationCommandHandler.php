@@ -33,17 +33,9 @@ class deleteConversationCommandHandler implements CommandHandler {
 
         $conversation = $this->conversationRepository->getConversationWith($otherUser);
 
-        $user = Auth::user();
+        $this->conversationRepository->setHiddenFor($conversation);
 
-        foreach ($user->conversations as $conv)
-        {
-            if ($conv->id == $conversation->id)
-            {
-                $conv->pivot->hidden = true;
-                $conv->pivot->save();
-            }
-        }
-
+        //TODO::write a function to get count of users that did not marked the conversation as hidden
         if($conversation->users->count() == 0) $conversation->forceDelete();
 
         $conversation = $this->conversationRepository->getLastConversation();

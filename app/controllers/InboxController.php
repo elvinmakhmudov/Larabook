@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Larabook\Conversations\ConversationRepository;
-use Larabook\Conversations\deleteConversationCommand;
+use Larabook\Conversations\DeleteConversationCommand;
 use Larabook\Conversations\getConversationCommand;
 use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
@@ -31,9 +31,7 @@ class InboxController extends \BaseController {
     public function show()
     {
         //TODO::find out is it necessary to validate the get data
-        $input = [
-            'sendToUsername' => Input::get('u')
-        ];
+        $input = ['sendToUsername' => Input::get('u')];
 
         $conversation = $this->execute(getConversationCommand::class, $input);
 
@@ -50,7 +48,6 @@ class InboxController extends \BaseController {
     public function send()
     {
         $input = Input::all();
-        $input['userId'] = Auth::id();
 
         $this->sendMessageForm->validate($input);
 
@@ -65,16 +62,14 @@ class InboxController extends \BaseController {
     public function delete()
     {
         //TODO::find out is it necessary to validate the get data
-        $input = [
-            'otherUsername' => Input::get('otherUsername')
-        ];
+        $input = ['otherUsername' => Input::get('otherUsername')];
 
-        $conversation = $this->execute(deleteConversationCommand::class, $input);
+        $conversation = $this->execute(DeleteConversationCommand::class, $input);
 
         //get the all convs previews
         $previews= $this->conversationRepository->getPreviews();
 
         return View::make('inbox.show')->withPreviews($previews)
-            ->withConversation($conversation);
+                                       ->withConversation($conversation);
     }
 }

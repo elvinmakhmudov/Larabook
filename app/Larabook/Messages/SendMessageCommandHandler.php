@@ -1,24 +1,31 @@
 <?php namespace Larabook\Messages;
 
-use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
 use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\UserRepository;
 use Laracasts\Commander\CommandHandler;
+use Laracasts\Commander\Events\DispatchableTrait;
 
 class SendMessageCommandHandler implements CommandHandler {
+
+    use DispatchableTrait;
 
     public $userRepository;
     /**
      * @var ConversationRepository
      */
     private $conversationRepository;
+    /**
+     * @var MessageRepository
+     */
+    private $messageRepository;
 
-    function __construct(UserRepository $userRepository, ConversationRepository $conversationRepository)
+    function __construct(UserRepository $userRepository, ConversationRepository $conversationRepository, MessageRepository $messageRepository)
     {
-        $this->userRepository = $userRepository;
-        $this->conversationRepository = $conversationRepository;
+        $this->userRepo = $userRepository;
+        $this->conversationRepo = $conversationRepository;
+        $this->messageRepo = $messageRepository;
     }
 
     /**
@@ -29,28 +36,20 @@ class SendMessageCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        $sendToUser = $this->userRepository->findByUsername($command->sendTo);
+        $sendToUser = $this->userRepo->findByUsername($command->sendTo);
 
-        try {
+        $conversation = $this->conversationRepo->getProperConversationWith($sendToUser);
 
-            $conversation = $this->conversationRepository->getConversationWith($sendToUser);
+        $message = Message::send($command->message);
 
-        } catch(ConversationNotFoundException $e){
-            //if conversation does not exist create one and attach the users to its table
+        //save the message in the conversation
+        $this->messageRepo->save(
+            $message,
+            $conversation
+        );
 
-            $conversation = Conversation::create([]);
+        $this->dispatchEventsFor($message);
 
-            $conversation->users()->attach($command->userId);
-            $conversation->users()->attach($sendToUser->id);
-
-        }
-
-        //TODO::create send method in Message model that will create a message and raise an event using EventGenerator
-        $message = Message::create([
-            'user_id' => $command->userId,
-            'conversation_id' => $conversation->id,
-            'content' => $command->message
-        ]);
+        return $message;
     }
-
 }

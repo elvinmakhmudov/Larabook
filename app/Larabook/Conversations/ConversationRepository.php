@@ -205,4 +205,60 @@ class ConversationRepository {
             }
         }
     }
+
+    /**
+     * Set hidden field to true for the conversation
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function setHiddenFor(Conversation $conversation)
+    {
+        foreach ($this->currentUser->conversations as $conv)
+        {
+            if ($conv->id == $conversation->id)
+            {
+                $conv->pivot->hidden = true;
+                $conv->pivot->save();
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Create a conversation with the user
+     * @param User $user
+     */
+    public function createConversationWith(User $user)
+    {
+        $conversation = Conversation::create([]);
+
+        $conversation->users()->attach($this->currentUser);
+        $conversation->users()->attach($user);
+
+        return $conversation;
+    }
+
+    /**
+     * If conversation exist get that or create a new one
+     *
+     * @param User $sendToUser
+     * @return array
+     */
+    public function getProperConversationWith(User $sendToUser)
+    {
+        //check if conversation already exist
+        try
+        {
+            $conversation = $this->getConversationWith($sendToUser);
+        }
+        catch(ConversationNotFoundException $e)
+        {
+            //if conversation does not exist create one and attach the users to its table
+
+            $conversation = $this->createConversationWith($sendToUser);
+        }
+
+        return $conversation;
+    }
 }

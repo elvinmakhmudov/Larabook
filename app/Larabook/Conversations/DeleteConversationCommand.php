@@ -1,8 +1,6 @@
 <?php namespace Larabook\Conversations;
 
-use Larabook\Users\User;
-
-class deleteConversationCommand {
+class DeleteConversationCommand {
 
     public $otherUsername;
 
