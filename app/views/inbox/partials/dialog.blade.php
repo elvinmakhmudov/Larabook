@@ -11,7 +11,5 @@
 
         <h1>You haven't talked to anyone.</h1>
 
-        @include('inbox.partials.send-message-form')
-
     @endif
 </div>

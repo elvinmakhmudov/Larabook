@@ -1,7 +1,6 @@
 <?php
 
 
-use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
 use Larabook\Conversations\ConversationRepository;
 use Laracasts\TestDummy\Factory as TestDummy;
@@ -9,6 +8,7 @@ use Laracasts\TestDummy\Factory as TestDummy;
 class ConversationRepositoryTest extends \Codeception\TestCase\Test
 {
     public $repo;
+    public $main;
     /**
      * @var \IntegrationTester
      */
@@ -20,6 +20,8 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
 
         $user = $this->tester->signIn();
         $this->repo->currentUser = $user;
+
+        $this->main = $this->mainSetup();
     }
 
     public function mainSetup()
@@ -51,57 +53,71 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     /** @test */
     public function it_gets_conversation_between_users()
     {
-        $main = $this->mainSetup();
+        $gotConversation = $this->repo->getConversationWith($this->main['otherUser']);
 
-        $gotConversation = $this->repo->getConversationWith($main['otherUser']);
+        $this->assertEquals($this->main['conversation']->id, $gotConversation->id);
 
-        $this->assertEquals($main['conversation']->id, $gotConversation->id);
-
-        $this->assertEquals($main['conversation']->messages()->first()->content, $main['message']->content);
+        $this->assertEquals($this->main['conversation']->messages()->first()->content, $this->main['message']->content);
     }
 
     /** @test */
     public function it_gets_other_users_username()
     {
-        $main = $this->mainSetup();
+        $otherUserUsername = $this->main['conversation']->otherUserInConversation;
 
-        $otherUserUsername = $main['conversation']->otherUserInConversation;
-
-        $this->assertEquals($otherUserUsername, $main['otherUser']->username);
+        $this->assertEquals($otherUserUsername, $this->main['otherUser']->username);
     }
 
     /** @test */
     public function it_gets_conversation_previews()
     {
-        $main = $this->mainSetup();
-
         $previews = $this->repo->getPreviews();
 
         foreach($previews as $preview)
         {
-            $this->assertEquals($preview->sender, $main['message']->sender->username);
+            $this->assertEquals($preview->sender, $this->main['message']->sender->username);
 
-            $otherUserUsername = $main['conversation']->otherUserInConversation;
+            $otherUserUsername = $this->main['conversation']->otherUserInConversation;
             $this->assertEquals($preview->otherUser, $otherUserUsername);
 
-            $this->assertEquals($preview->content, $main['message']->content);
+            $this->assertEquals($preview->content, $this->main['message']->content);
         }
     }
 
     /** @test */
     public function it_gets_the_last_conversation()
     {
-        $main = $this->mainSetup();
-
         //wait a second to create another conversation
         sleep(1);
 
         $conversation = Conversation::create([]);
 
-        $conversation->users()->attach($main['user']->id);
+        $conversation->users()->attach($this->main['user']->id);
 
         $last = $this->repo->getLastConversation();
 
         $this->assertEquals($last->id, $conversation->id);
+    }
+
+    /** @test */
+    public function it_sets_the_hidden_field_to_true_for_the_conversation()
+    {
+        //create another conversation to prove that setHiddenFor function is working for every conversation
+        $conversation = Conversation::create([]);
+        $conversation->users()->attach($this->main['user']->id);
+
+        $success = $this->repo->setHiddenFor($this->main['conversation']);
+
+        $this->assertTrue($success);
+    }
+
+    /** @test */
+    public function it_creates_conversation_with_a_user()
+    {
+        $otherUser= TestDummy::create('Larabook\Users\User');
+
+        $conversation = $this->repo->createConversationWith($otherUser);
+
+        $this->assertEquals($conversation->users->count(), 2);
     }
 }

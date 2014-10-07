@@ -63,7 +63,8 @@ class UserRepository {
      */
     public function findById($id)
     {
-        return User::findOrFail($id); }
+        return User::findOrFail($id);
+    }
 
     /**
      * Follow a Larabook user.

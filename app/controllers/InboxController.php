@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\DeleteConversationCommand;
 use Larabook\Conversations\getConversationCommand;
@@ -23,6 +22,15 @@ class InboxController extends \BaseController {
         $this->conversationRepository = $conversationRepository;
     }
 
+    /**
+     * Show a new send message form
+     *
+     * @return mixed
+     */
+    public function index()
+    {
+        return View::make('inbox.new-message');
+    }
     /**
      * Show dialog with user
      *
@@ -53,7 +61,7 @@ class InboxController extends \BaseController {
 
         $this->execute(SendMessageCommand::class, $input);
 
-        return Redirect::back();
+        return Redirect::route('inbox_path');
     }
 
     /**
@@ -64,12 +72,8 @@ class InboxController extends \BaseController {
         //TODO::find out is it necessary to validate the get data
         $input = ['otherUsername' => Input::get('otherUsername')];
 
-        $conversation = $this->execute(DeleteConversationCommand::class, $input);
+        $this->execute(DeleteConversationCommand::class, $input);
 
-        //get the all convs previews
-        $previews= $this->conversationRepository->getPreviews();
-
-        return View::make('inbox.show')->withPreviews($previews)
-                                       ->withConversation($conversation);
+        return Redirect::route('inbox_path');
     }
 }

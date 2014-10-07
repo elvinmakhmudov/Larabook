@@ -22,7 +22,7 @@ class ConversationRepository {
     public function getPreviews()
     {
         //get the conversations with messages and sender to minimize mysql queries
-        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get();
+        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get()->sortByDesc('updated_at');
 
         $previews= [];
         foreach($convs as $conv)
@@ -36,6 +36,7 @@ class ConversationRepository {
 
         return $previews;
     }
+
 
     /**
      * Make a preview for the conversation
@@ -84,13 +85,24 @@ class ConversationRepository {
      */
     public function getConversationBetween(User $user, User $otherUser)
     {
-        $convId = $this->getCommonConversationId($user, $otherUser);
+        $convId = $this->getConversationIdBetween($user, $otherUser);
 
-        $conversation = Conversation::with('messages.sender')->find($convId);
+        $conversation = $this->findById($convId);
 
         if( ! is_null($conversation)) return $conversation;
 
         throw new ConversationNotFoundException;
+    }
+
+    /**
+     * Find conversation by Id
+     *
+     * @param $convId
+     * @return mixed
+     */
+    public function findById($convId)
+    {
+        return Conversation::with('messages.sender')->find($convId);
     }
 
     /**
@@ -100,7 +112,7 @@ class ConversationRepository {
      * @param User $otherUser
      * @return mixed
      */
-    public function getCommonConversationId(User $user, User $otherUser)
+    public function getConversationIdBetween(User $user, User $otherUser)
     {
         $currentUserConvIds= $this->userConversationIds($user);
         $otherUserConvIds = $this->userConversationIds($otherUser);
@@ -139,6 +151,18 @@ class ConversationRepository {
     {
         $user = $this->currentUser;
 
+        return $this->isShownFor($user, $conversation);
+    }
+
+    /**
+     * Is the conversation shown for the user
+     *
+     * @param User $user
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function isShownFor(User $user, Conversation $conversation)
+    {
         $hiddenConvs = $this->getHiddenConvs($user);
 
         $shown = ! in_array( $conversation->id, $hiddenConvs);
@@ -194,7 +218,7 @@ class ConversationRepository {
      */
     public function getLastConversation()
     {
-        $convs = $this->currentUser->conversations()->with('messages.sender')->get();
+        $convs = $this->currentUser->conversations()->with('messages.sender')->get()->sortByDesc('updated_at');
 
         //the next conversation always will be the latest one cause we grabbed all conversations with latest() method
         foreach($convs as $conv)
@@ -227,6 +251,7 @@ class ConversationRepository {
 
     /**
      * Create a conversation with the user
+     *
      * @param User $user
      */
     public function createConversationWith(User $user)
@@ -239,26 +264,26 @@ class ConversationRepository {
         return $conversation;
     }
 
+
     /**
-     * If conversation exist get that or create a new one
+     * Can somebody see the conversation?
      *
-     * @param User $sendToUser
-     * @return array
+     * @param Conversation $conversation
+     * @return bool
      */
-    public function getProperConversationWith(User $sendToUser)
+    public function seenBySomebody(Conversation $conversation)
     {
-        //check if conversation already exist
-        try
+        foreach($conversation->users as $user)
         {
-            $conversation = $this->getConversationWith($sendToUser);
-        }
-        catch(ConversationNotFoundException $e)
-        {
-            //if conversation does not exist create one and attach the users to its table
+            //is the conversation shown for the user
+            $shown = $this->isShownFor($user, $conversation);
 
-            $conversation = $this->createConversationWith($sendToUser);
+            if( $shown )
+            {
+                return true;
+            }
         }
 
-        return $conversation;
+        return false;
     }
 }

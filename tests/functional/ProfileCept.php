@@ -7,6 +7,6 @@ $I->signIn();
 $I->postAStatus('My new status');
 
 $I->click('Your Profile');
-$I->seeCurrentUrlEquals('/@FooBar');
+$I->seeCurrentUrlEquals('/@elvin');
 
 $I->see('My new status');

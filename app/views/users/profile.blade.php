@@ -20,7 +20,6 @@
                         @include('users.partials.avatar', [ 'size' => 25, 'user' => $follower ])
                     @endforeach
 
-                    @include('inbox.partials.send-message-form')
                 </div>
             </div>
         </div>

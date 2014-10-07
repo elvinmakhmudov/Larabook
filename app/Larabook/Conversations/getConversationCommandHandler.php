@@ -28,25 +28,26 @@ class getConversationCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        try {
+        try
+        {
             //get the user by username
             $otherUser = $this->userRepository->findbyUsername($command->sendToUsername);
 
             //get the conversation between users
             $mainConv = $this->conversationRepository->getConversationWith($otherUser);
-
-        } catch(UserNotFoundException $e) {
-
+        }
+        catch(UserNotFoundException $e)
+        {
             //if the user not found get the last conversation
             $mainConv = $this->conversationRepository->getLastConversation();
-        } catch(ConversationNotFoundException $e) {
-
+        }
+        catch(ConversationNotFoundException $e)
+        {
             //if the conversation not found get the last conversation
             $mainConv = $this->conversationRepository->getLastConversation();
         }
 
         return $mainConv;
-
     }
 
 }

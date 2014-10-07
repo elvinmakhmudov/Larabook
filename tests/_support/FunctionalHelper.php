@@ -7,20 +7,18 @@ use Laracasts\TestDummy\Factory as TestDummy;
 
 class FunctionalHelper extends \Codeception\Module
 {
-
-    public function signIn()
+    public function signIn($email = 'elvin@mail.ru', $username = 'elvin', $password = '123')
     {
-        $email = 'elvin@mail.ru';
-        $username = 'FooBar';
-        $password = '123';
-
-        $this->haveAnAccount(compact('username', 'email', 'password'));
+        $user = $this->haveAnAccount(compact('username', 'email', 'password'));
         $I = $this->getModule('Laravel4');
 
         $I->amOnPage('/login');
         $I->fillField('email', $email);
         $I->fillField('password', $password);
         $I->click('Sign In');
+        $I->amLoggedAs($user);
+
+        return $user;
     }
 
     public function postAStatus($body)
@@ -40,4 +38,28 @@ class FunctionalHelper extends \Codeception\Module
         return $this->have('Larabook\Users\User', $overrides);
     }
 
+    public function sendMessage($username, $message)
+    {
+        $I = $this->getModule('Laravel4');
+
+        //setup
+        $otheruser = $this->haveAnAccount(['username' => $username]);
+
+        //actions
+        $I->click('Messages');
+        $I->click('New Message');
+        $I->seeCurrentUrlEquals('/inbox/new');
+        $I->fillField('Send to:', $username);
+        $I->fillField('Message:', $message);
+        $I->click('Send');
+
+        return $otheruser;
+    }
+
+    public function signOut()
+    {
+        $I = $this->getModule('Laravel4');
+
+        $I->click('Log out');
+    }
 }

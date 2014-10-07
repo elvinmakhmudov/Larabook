@@ -94,6 +94,10 @@ Route::controller('password', 'RemindersController');
 /**
  * Inbox
  */
+Route::get('inbox/new', [
+    'as' => 'new_message_path',
+    'uses' => 'InboxController@index'
+]);
 
 Route::get('inbox', [
     'as' => 'inbox_path',

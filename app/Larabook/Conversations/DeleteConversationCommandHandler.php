@@ -1,46 +1,43 @@
 <?php namespace Larabook\Conversations;
 
-use Illuminate\Support\Facades\Auth;
 use Larabook\Users\UserRepository;
 use Laracasts\Commander\CommandHandler;
 
 class deleteConversationCommandHandler implements CommandHandler {
 
-    /**
+    /*
      * @var ConversationRepository
      */
-    private $conversationRepository;
+    private $conversationRepo;
     /**
      * @var UserRepository
      */
-    private $userRepository;
+    private $userRepo;
 
-    public function __construct(ConversationRepository $conversationRepository, UserRepository $userRepository)
+    public function __construct(ConversationRepository $conversationRepository, UserRepository $userRepo)
     {
-        $this->conversationRepository = $conversationRepository;
-        $this->userRepository = $userRepository;
+        $this->conversationRepo = $conversationRepository;
+        $this->userRepo = $userRepo;
     }
 
     /**
-     * Handle the command.
+     * Hide or delete the conversation
      *
      * @param object $command
      * @return void
      */
     public function handle($command)
     {
-        $otherUser = $this->userRepository->findByUsername($command->otherUsername);
+        $otherUser = $this->userRepo->findByUsername($command->otherUsername);
 
-        $conversation = $this->conversationRepository->getConversationWith($otherUser);
+        $conversation = $this->conversationRepo->getConversationWith($otherUser);
 
-        $this->conversationRepository->setHiddenFor($conversation);
+        $this->conversationRepo->setHiddenFor($conversation);
 
-        //TODO::write a function to get count of users that did not marked the conversation as hidden
-        if($conversation->users->count() == 0) $conversation->forceDelete();
-
-        $conversation = $this->conversationRepository->getLastConversation();
-
-        return $conversation;
+        //delete the conversation if the conversation is not seen by anybody
+        if( ! $this->conversationRepo->seenBySomebody($conversation) )
+        {
+            $conversation->delete();
+        }
     }
-
 }
