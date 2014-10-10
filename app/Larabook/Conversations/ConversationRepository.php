@@ -8,6 +8,7 @@ class ConversationRepository {
 
     public $currentUser;
 
+    public $conversationPreview;
 
     public function __construct()
     {

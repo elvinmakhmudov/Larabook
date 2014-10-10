@@ -20,6 +20,7 @@ class InboxController extends \BaseController {
         $this->sendMessageForm = $sendMessageForm;
         $this->userRepository = $userRepository;
         $this->conversationRepository = $conversationRepository;
+        $this->beforeFilter('auth');
     }
 
     /**
@@ -38,7 +39,6 @@ class InboxController extends \BaseController {
      */
     public function show()
     {
-        //TODO::find out is it necessary to validate the get data
         $input = ['sendToUsername' => Input::get('u')];
 
         $conversation = $this->execute(getConversationCommand::class, $input);
@@ -69,7 +69,6 @@ class InboxController extends \BaseController {
      */
     public function delete()
     {
-        //TODO::find out is it necessary to validate the get data
         $input = ['otherUsername' => Input::get('otherUsername')];
 
         $this->execute(DeleteConversationCommand::class, $input);

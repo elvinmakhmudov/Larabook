@@ -52,7 +52,7 @@ class UserRepository {
 
         if( ! is_null($user)) return $user;
 
-        throw new UserNotFoundException;
+        throw new UserNotFoundException('User not found');
     }
 
     /**

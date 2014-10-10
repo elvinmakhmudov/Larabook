@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
-use Larabook\Users\User;
+use Larabook\Users\CurrentUser;
 
 class MessageRepository {
 

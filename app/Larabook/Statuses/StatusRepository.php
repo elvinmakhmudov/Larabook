@@ -1,8 +1,16 @@
 <?php  namespace Larabook\Statuses;
 
+use Illuminate\Support\Facades\Auth;
 use Larabook\Users\User;
 
 class StatusRepository {
+
+    public $currentUser;
+
+    public function __construct()
+    {
+        $this->currentUser = Auth::user();
+    }
 
     /**
      * Save a new status for a user
@@ -20,14 +28,13 @@ class StatusRepository {
     /**
      * Get the feed for a user.
      *
-     * @param User $user
      * @return mixed
      */
-    public function getFeedForUser(User $user)
+    public function getFeed()
     {
-        $userIds = $user->followedUsers()->lists('followed_id');
+        $userIds = $this->currentUser->followedUsers()->lists('followed_id');
         //to show own statuses
-        $userIds[] = $user->id;
+        $userIds[] = $this->currentUser->id;
 
         return Status::whereIn('user_id', $userIds)->latest()->with('user')->get();
     }

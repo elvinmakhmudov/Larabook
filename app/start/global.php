@@ -61,6 +61,16 @@ App::error(function(Illuminate\Database\Eloquent\ModelNotFoundException $excepti
     return Redirect::home();
 });
 
+App::error(function(Larabook\Users\Exceptions\UserNotFoundException $exception, $code)
+{
+    return Redirect::back()->withInput()->withErrors($exception->getMessage());
+});
+
+App::error(function(Larabook\Conversations\Exceptions\ConversationNotFoundException $exception, $code)
+{
+    return Redirect::route('inbox_path');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Maintenance Mode Handler

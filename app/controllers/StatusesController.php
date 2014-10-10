@@ -22,7 +22,7 @@ class StatusesController extends \BaseController {
 	 */
 	public function show()
 	{
-        $statuses = $this->statusRepository->getFeedForUser(Auth::user());
+        $statuses = $this->statusRepository->getFeed();
 
         return View::make('statuses.show', compact('statuses'));
 	}

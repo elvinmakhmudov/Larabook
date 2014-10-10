@@ -20,6 +20,10 @@ class SendMessageCommandHandler implements CommandHandler {
      * @var MessageRepository
      */
     private $messageRepo;
+    /**
+     * @var App
+     */
+    private $app;
 
     function __construct(UserRepository $userRepository, ConversationRepository $conversationRepository, MessageRepository $messageRepository)
     {
@@ -36,11 +40,19 @@ class SendMessageCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        $sendToUser = $this->userRepo->findByUsername($command->sendTo);
+        //get the user
+        $user = $this->userRepo->findByUsername($command->sendTo);
 
-        $conversation = $this->getOrCreateConversationWith($sendToUser);
+        //get the proper conversation with the user
+        $conversation = $this->getProperConversationWith($user);
 
-        $message = Message::send($command->message);
+        //send the message to the conversation
+        $this->sendMessage($command->message, $conversation);
+    }
+
+    public function sendMessage($message, $conversation)
+    {
+        $message = Message::send($message);
 
         //save the message in the conversation
         $this->messageRepo->save(
@@ -48,6 +60,7 @@ class SendMessageCommandHandler implements CommandHandler {
             $conversation
         );
 
+        //dispatct events for the message
         $this->dispatchEventsFor($message);
     }
 
@@ -57,7 +70,7 @@ class SendMessageCommandHandler implements CommandHandler {
      * @param User $sendToUser
      * @return array
      */
-    public function getOrCreateConversationWith(User $sendToUser)
+    public function getProperConversationWith(User $sendToUser)
     {
         //check if conversation already exist
         try

@@ -1,6 +1,5 @@
 <?php namespace Larabook\Conversations;
 
-use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\Exceptions\UserNotFoundException;
 use Larabook\Users\UserRepository;
@@ -31,23 +30,22 @@ class getConversationCommandHandler implements CommandHandler {
         try
         {
             //get the user by username
-            $otherUser = $this->userRepository->findbyUsername($command->sendToUsername);
+            $user= $this->userRepository->findbyUsername($command->sendToUsername);
 
             //get the conversation between users
-            $mainConv = $this->conversationRepository->getConversationWith($otherUser);
+            $conversation = $this->conversationRepository->getConversationWith($user);
         }
         catch(UserNotFoundException $e)
         {
             //if the user not found get the last conversation
-            $mainConv = $this->conversationRepository->getLastConversation();
+            $conversation = $this->conversationRepository->getLastConversation();
         }
         catch(ConversationNotFoundException $e)
         {
             //if the conversation not found get the last conversation
-            $mainConv = $this->conversationRepository->getLastConversation();
+            $conversation = $this->conversationRepository->getLastConversation();
         }
 
-        return $mainConv;
+        return $conversation;
     }
-
 }

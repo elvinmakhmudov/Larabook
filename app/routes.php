@@ -119,3 +119,11 @@ Route::delete('inbox', [
 //{
 //    var_dump($sql);
 //});
+
+/**
+ * Other routes
+ */
+Route::get('/{something}', function()
+{
+    return Redirect::home();
+});
