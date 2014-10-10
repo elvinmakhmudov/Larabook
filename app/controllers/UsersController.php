@@ -1,5 +1,6 @@
 <?php
 
+use Larabook\Statuses\StatusRepository;
 use Larabook\Users\UserRepository;
 
 class UsersController extends \BaseController {
@@ -8,13 +9,19 @@ class UsersController extends \BaseController {
      * @var
      */
     public $userRepository;
+    /**
+     * @var StatusRepository
+     */
+    private $statusRepo;
 
     /**
      * @param UserRepository $userRepository
+     * @param StatusRepository $statusRepo
      */
-    function __construct(UserRepository $userRepository)
+    function __construct(UserRepository $userRepository, StatusRepository $statusRepo)
     {
         $this->userRepository = $userRepository;
+        $this->statusRepo = $statusRepo;
     }
 
     /**
@@ -31,8 +38,11 @@ class UsersController extends \BaseController {
 
     public function profile($username)
     {
-        $user = $this->userRepository->findByUsernameWithStatuses($username);
+        $user = $this->userRepository->findByUsername($username);
 
-        return View::make('users.profile')->withUser($user);
+        $statuses = $this->statusRepo->getStatusesOf($user);
+
+        return View::make('users.profile')->withUser($user)
+                                          ->withStatuses($statuses);
     }
 }

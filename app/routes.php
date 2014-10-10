@@ -115,10 +115,10 @@ Route::delete('inbox', [
 ]);
 
 //listen to mysql event
-//Event::listen('illuminate.query', function($sql)
-//{
-//    var_dump($sql);
-//});
+Event::listen('illuminate.query', function($sql)
+{
+    var_dump($sql);
+});
 
 /**
  * Other routes

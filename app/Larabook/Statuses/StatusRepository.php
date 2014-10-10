@@ -38,4 +38,15 @@ class StatusRepository {
 
         return Status::whereIn('user_id', $userIds)->latest()->with('user')->get();
     }
+
+    /**
+     * Get user statuses
+     *
+     * @param User $user
+     * @return
+     */
+    public function getStatusesOf(User $user)
+    {
+        return Status::where('user_id', $user->id)->with('user')->get();
+    }
 } 

@@ -34,7 +34,7 @@
                 @include('statuses.partials.publish-status-form')
             @endif
 
-            @include('statuses.partials.statuses', [ 'statuses' => $user->statuses ])
+            @include('statuses.partials.statuses')
         </div>
     </div>
 @stop
