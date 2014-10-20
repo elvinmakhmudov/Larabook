@@ -1,25 +1,19 @@
 <?php
 
-use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\DeleteConversationCommand;
 use Larabook\Conversations\getConversationCommand;
+use Larabook\Conversations\Previews\getPreviewsCommand;
 use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
-use Larabook\Users\UserRepository;
 
 class InboxController extends \BaseController {
 
     public $sendMessageForm;
 
-    public $userRepository;
 
-    private $conversationRepository;
-
-    function __construct(SendMessageForm $sendMessageForm, UserRepository $userRepository, ConversationRepository $conversationRepository)
+    function __construct(SendMessageForm $sendMessageForm)
     {
         $this->sendMessageForm = $sendMessageForm;
-        $this->userRepository = $userRepository;
-        $this->conversationRepository = $conversationRepository;
         $this->beforeFilter('auth');
     }
 
@@ -43,8 +37,7 @@ class InboxController extends \BaseController {
 
         $conversation = $this->execute(getConversationCommand::class, $input);
 
-        //get the all convs previews
-        $previews= $this->conversationRepository->getPreviews();
+        $previews = $this->execute(getPreviewsCommand::class);
 
         return View::make('inbox.show')->withPreviews($previews)
                                        ->withConversation($conversation);
@@ -69,7 +62,7 @@ class InboxController extends \BaseController {
      */
     public function delete()
     {
-        $input = ['otherUsername' => Input::get('otherUsername')];
+        $input = ['convToDelete' => Input::get('convToDelete')];
 
         $this->execute(DeleteConversationCommand::class, $input);
 

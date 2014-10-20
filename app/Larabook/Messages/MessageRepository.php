@@ -3,14 +3,15 @@
 use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Conversation;
 use Larabook\Users\CurrentUser;
+use Larabook\Users\User;
 
 class MessageRepository {
 
     public $currentUser;
 
-    public function __construct()
+    public function __construct(User $user = null)
     {
-        $this->currentUser = Auth::user();
+        $this->currentUser = $user ? Auth::user() : $user;
     }
 
     /**

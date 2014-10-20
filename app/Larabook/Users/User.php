@@ -60,7 +60,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface
      */
     public function conversations()
     {
-        return $this->belongsToMany('Larabook\Conversations\Conversation')->withPivot('hidden');
+        return $this->belongsToMany('Larabook\Conversations\Conversation')->withPivot('hidden', 'hidden_date');
     }
 
     /**

@@ -20,7 +20,7 @@ class CreateConversationUserTable extends Migration {
 			$table->integer('user_id')->unsigned()->index();
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->boolean('hidden');
-			$table->timestamps();
+            $table->timestamp('hidden_date');
 		});
 	}
 

@@ -2,11 +2,11 @@
 
 class DeleteConversationCommand {
 
-    public $otherUsername;
+    public $convToDelete;
 
-    public function __construct($otherUsername)
+    public function __construct($convToDelete)
     {
-        $this->otherUsername = $otherUsername;
+        $this->convToDelete = $convToDelete;
     }
 
 }

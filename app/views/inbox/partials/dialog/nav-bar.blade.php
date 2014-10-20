@@ -9,7 +9,7 @@
         <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Select</a></li>
         <li role="presentation" class="divider"></li>
         {{ Form::open(['method' => 'DELETE', 'route' => ['inbox_path']]) }}
-            {{ Form::hidden('otherUsername', $conv->otherUserInConversation) }}
+            {{ Form::hidden('convToDelete', $conv->id) }}
             <button class='button' type="submit" >Delete conversation</button>
         {{ Form::close() }}
       </ul>

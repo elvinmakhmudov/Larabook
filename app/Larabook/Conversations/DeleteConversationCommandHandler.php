@@ -28,10 +28,9 @@ class deleteConversationCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        $otherUser = $this->userRepo->findByUsername($command->otherUsername);
+        $conversation = $this->conversationRepo->findById($command->convToDelete);
 
-        $conversation = $this->conversationRepo->getConversationWith($otherUser);
-
+        //set hidden attribute to the conversation
         $this->conversationRepo->setHiddenFor($conversation);
 
         //delete the conversation if the conversation is not seen by anybody

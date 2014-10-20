@@ -16,10 +16,9 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->repo = new ConversationRepository;
 
         $user = $this->tester->signIn();
-        $this->repo->currentUser = $user;
+        $this->repo = new ConversationRepository($user);
 
         $this->main = $this->mainSetup();
     }
@@ -68,7 +67,9 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
         $this->assertEquals($otherUserUsername, $this->main['otherUser']->username);
     }
 
-    /** @test */
+    /*
+     * TODO::move to previewrepositorytest
+     */
     public function it_gets_conversation_previews()
     {
         $previews = $this->repo->getPreviews();

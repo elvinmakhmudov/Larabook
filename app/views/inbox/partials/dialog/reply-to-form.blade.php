@@ -2,7 +2,7 @@
     @include('layouts.partials.errors')
 
     {{ Form::open(['route'=> 'inbox_path']) }}
-        {{ Form::hidden('sendTo', $conv->otherUserInConversation) }}
+        {{ Form::hidden('sendTo', $conv->id) }}
         <!-- Message Form Input -->
         <div class="form-group">
             {{ Form::label('message', 'Message:') }}

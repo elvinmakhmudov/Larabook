@@ -30,7 +30,7 @@ class getConversationCommandHandler implements CommandHandler {
         try
         {
             //get the user by username
-            $user= $this->userRepository->findbyUsername($command->sendToUsername);
+            $user = $this->userRepository->findbyUsername($command->sendToUsername);
 
             //get the conversation between users
             $conversation = $this->conversationRepository->getConversationWith($user);

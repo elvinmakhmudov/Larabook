@@ -1,6 +1,8 @@
 <?php  namespace Larabook\Conversations;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Larabook\Conversations\Exceptions\ConversationIsHiddenException;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\User;
 
@@ -8,60 +10,16 @@ class ConversationRepository {
 
     public $currentUser;
 
-    public $conversationPreview;
-
-    public function __construct()
+    public function __construct(User $user = null)
     {
-        $this->currentUser = Auth::user();
-    }
-
-    /**
-     * Get all samples of the user's conversations
-     *
-     * @return array
-     */
-    public function getPreviews()
-    {
-        //get the conversations with messages and sender to minimize mysql queries
-        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get()->sortByDesc('updated_at');
-
-        $previews= [];
-        foreach($convs as $conv)
-        {
-            //if the conversation is shown for the current user make a preview
-            if($this->isShown($conv))
-            {
-                $previews[] = $this->makePreviewFor($conv);
-            }
-        }
-
-        return $previews;
-    }
-
-
-    /**
-     * Make a preview for the conversation
-     *
-     * @param Conversation $conv
-     * @return \Larabook\Conversations\ConversationPreview
-     */
-    public function makePreviewFor(Conversation $conv)
-    {
-        //first() method because in the messages relationship we get the messages with latest() method
-        $lastMessage = $conv->messages->first();
-
-        $otherUsername = $conv->otherUserInConversation;
-
-        //TODO::bad code
-        $preview = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
-
-        return $preview;
+        $this->currentUser = $user ? Auth::user() : $user;
     }
 
     /**
      * Get conversation between users
      *
      * @param User $otherUser
+     * @throws ConversationIsHiddenException
      * @throws ConversationNotFoundException
      * @return array
      */
@@ -74,6 +32,8 @@ class ConversationRepository {
         {
             return $conversation;
         }
+
+        throw new ConversationIsHiddenException;
     }
 
     /**
@@ -88,22 +48,44 @@ class ConversationRepository {
     {
         $convId = $this->getConversationIdBetween($user, $otherUser);
 
-        $conversation = $this->findById($convId);
-
-        if( ! is_null($conversation)) return $conversation;
-
-        throw new ConversationNotFoundException;
+        return $this->findById($convId);
     }
+
 
     /**
      * Find conversation by Id
      *
-     * @param $convId
+     * @param $id
+     * @throws ConversationNotFoundException
      * @return mixed
      */
-    public function findById($convId)
+    public function findById($id)
     {
-        return Conversation::with('messages.sender')->find($convId);
+        if( ! $this->isConversationExists($id) )
+        {
+            throw new ConversationNotFoundException('Conversation not found');
+        }
+
+        return Conversation::with('messages.sender')->find($id);
+    }
+
+    /**
+     * Is the conversation one of the current User's conversations?
+     *
+     * @param $id
+     * @throws ConversationNotFoundException
+     * @return bool
+     */
+    public function isConversationExists($id)
+    {
+        $convIds = $this->userConversationIds($this->currentUser);
+
+        if( ! in_array($id, $convIds))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -203,7 +185,6 @@ class ConversationRepository {
         $conversations = $user->conversations()->get();
 
         $conversationIds = [];
-
         foreach($conversations as $conversation)
         {
             $conversationIds[] = $conversation->id;
@@ -239,15 +220,23 @@ class ConversationRepository {
      */
     public function setHiddenFor(Conversation $conversation)
     {
-        foreach ($this->currentUser->conversations as $conv)
-        {
-            if ($conv->id == $conversation->id)
-            {
-                $conv->pivot->hidden = true;
-                $conv->pivot->save();
-                return true;
-            }
-        }
+        $this->currentUser->conversations()->updateExistingPivot($conversation->id, ['hidden' => true,
+                                                                                     'hidden_date' => Carbon::now()]);
+
+        return true;
+    }
+
+    /**
+     * Set hidden field to false for the conversation
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function setShownFor(Conversation $conversation)
+    {
+        $this->currentUser->conversations()->updateExistingPivot($conversation->id, ['hidden' => false]);
+
+        return true;
     }
 
     /**
@@ -286,5 +275,24 @@ class ConversationRepository {
         }
 
         return false;
+    }
+
+    public function getAllShown()
+    {
+        //get the conversations with messages and sender to minimize mysql queries
+        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get()->sortByDesc('updated_at');
+
+        $shownConvs = [];
+        foreach($convs as $conv)
+        {
+            $shown = $this->isShown($conv);
+
+            if ( $shown )
+            {
+                $shownConvs[] = $conv;
+            }
+        }
+
+        return $shownConvs;
     }
 }

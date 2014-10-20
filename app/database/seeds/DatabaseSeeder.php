@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder {
      */
     public $seeders = [
         'UsersTableSeeder',
-        'StatusesTableSeeder'
+        'StatusesTableSeeder',
+        'MessagesTableSeeder'
     ];
 
     /**
@@ -18,7 +19,8 @@ class DatabaseSeeder extends Seeder {
      */
     public $tables = [
         'users',
-        'statuses'
+        'statuses',
+        'messages'
     ];
 	/**
 	 * Run the database seeds.

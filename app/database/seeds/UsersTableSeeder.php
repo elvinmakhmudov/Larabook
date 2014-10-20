@@ -18,6 +18,12 @@ class UsersTableSeeder extends Seeder {
                 'password' => 123
 			]);
 		}
+
+        User::create([
+            'username' => 'elvin',
+            'email' => 'elvin@mail.ru',
+            'password' => 123
+        ]);
 	}
 
 }
