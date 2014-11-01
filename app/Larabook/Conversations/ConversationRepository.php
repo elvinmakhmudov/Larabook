@@ -101,9 +101,6 @@ class ConversationRepository {
 
         $conversation = Conversation::find($id);
 
-        //if the the conversation is shown for the current user
-        if ( ! $this->isShown($conversation)) $this->setShownFor($conversation);
-
         return $conversation;
     }
 

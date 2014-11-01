@@ -31,5 +31,4 @@ $I->see('some random message','.preview');
 $I->see('some random message','.message');
 
 $I->click('elvin','.preview');
-$I->seeCurrentUrlEquals('/inbox?u=elvin');
 $I->see('some random message','.message');

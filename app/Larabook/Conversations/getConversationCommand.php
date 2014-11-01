@@ -5,14 +5,14 @@ class getConversationCommand {
     /**
      * @var string
      */
-    public $sendToUsername;
+    public $conversationId;
 
     /**
      * @param string sendToUsername
      */
-    public function __construct($sendToUsername)
+    public function __construct($conversationId)
     {
-        $this->sendToUsername = $sendToUsername;
+        $this->conversationId = $conversationId;
     }
 
 }

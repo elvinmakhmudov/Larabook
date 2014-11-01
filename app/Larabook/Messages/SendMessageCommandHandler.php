@@ -103,6 +103,13 @@ class SendMessageCommandHandler implements CommandHandler {
         try
         {
             $conversation = $this->conversationRepo->getConversationWith($user);
+
+            //if the the conversation is not shown for the current user
+            if ( ! $this->conversationRepo->isShown($conversation))
+            {
+                //set hidden field to 0 for the conversation
+                $this->conversationRepo->setShownFor($conversation);
+            }
         }
         catch(ConversationNotFoundException $e)
         {

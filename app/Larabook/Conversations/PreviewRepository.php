@@ -34,7 +34,7 @@ class PreviewRepository {
         $otherUsername = $conv->otherUserInConversation;
 
         //TODO::bad code
-        $preview = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content);
+        $preview = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content, $conv->id);
 
         return $preview;
     }

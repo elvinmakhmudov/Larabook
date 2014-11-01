@@ -34,7 +34,7 @@ class InboxController extends \BaseController {
      */
     public function show()
     {
-        $input = ['sendToUsername' => Input::get('u')];
+        $input = ['conversationId' => Input::get('c')];
 
         $conversation = $this->execute(getConversationCommand::class, $input);
 

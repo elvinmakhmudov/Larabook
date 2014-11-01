@@ -34,5 +34,4 @@ $I->see('OtherUser');
 $I->see('some random message');
 
 $I->click('OtherUser');
-$I->seeCurrentUrlEquals('/inbox?u=OtherUser');
 $I->see('some random message');
