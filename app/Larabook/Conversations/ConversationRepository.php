@@ -1,6 +1,7 @@
 <?php  namespace Larabook\Conversations;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Larabook\Conversations\Exceptions\ConversationIsHiddenException;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
@@ -50,7 +51,7 @@ class ConversationRepository {
     public function getConversationBetween(User $user, User $otherUser)
     {
         //if the users are not identical get the conversation
-        if( ! $user->is($otherUser))
+        if( ! $user->is($otherUser) )
         {
             $convId = $this->getConversationIdBetween($user, $otherUser);
 
@@ -89,28 +90,62 @@ class ConversationRepository {
      * Find conversation by Id
      *
      * @param $id
+     * @throws ConversationIsHiddenException
      * @throws ConversationNotFoundException
      * @return mixed
      */
     public function findById($id)
     {
-        if( ! $this->isConversationExists($id) )
-        {
-            throw new ConversationNotFoundException('Conversation not found');
-        }
+        $this->doesConversationExistsOrFail($id);
 
         $conversation = Conversation::find($id);
+
+        $this->isConversationShownOrFail($conversation);
 
         return $conversation;
     }
 
     /**
-     * Is the conversation one of the current User's conversations?
+     * Check whether conversation exists, if not throw an Exception
+     *
+     * @param $id
+     * @return bool
+     * @throws ConversationNotFoundException
+     */
+    public function doesConversationExistsOrFail($id)
+    {
+        if( ! $this->doesConversationExists($id) )
+        {
+            throw new ConversationNotFoundException('Conversation not found');
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether conversation is shown for the current user, if not throw an Exception
+     *
+     * @param $conversation
+     * @throws ConversationIsHiddenException
+     * @return bool
+     */
+    public function isConversationShownOrFail($conversation)
+    {
+        if( ! $this->isShown($conversation))
+        {
+            throw new ConversationIsHiddenException('Conversation is hidden');
+        }
+
+        return true;
+    }
+
+    /**
+     * Does the conversation one of the current User's conversations?
      *
      * @param $id
      * @return bool
      */
-    public function isConversationExists($id)
+    public function doesConversationExists($id)
     {
         $convIds = $this->userConversationIds($this->currentUser);
 
@@ -166,9 +201,7 @@ class ConversationRepository {
      */
     public function isShown(Conversation $conversation)
     {
-        $user = $this->currentUser;
-
-        return $this->isShownFor($user, $conversation);
+        return $this->isShownFor($this->currentUser, $conversation);
     }
 
     /**
@@ -309,9 +342,7 @@ class ConversationRepository {
         foreach($conversation->users as $user)
         {
             //is the conversation shown for the user
-            $shown = $this->isShownFor($user, $conversation);
-
-            if( $shown )
+            if( $this->isShownFor($user, $conversation) )
             {
                 return true;
             }
@@ -320,17 +351,32 @@ class ConversationRepository {
         return false;
     }
 
+    /**
+     * Get all shown conversations with messages, senders and users attached to conversations
+     *
+     * @return array
+     */
     public function getAllShown()
     {
         //get the conversations with messages and sender to minimize mysql queries
         $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get()->sortByDesc('updated_at');
 
+        return $this->getShownConvsOf($convs);
+    }
+
+    /**
+     * Get shown conversation of the collection
+     *
+     * @param Collection $convs
+     * @return array
+     */
+    public function getShownConvsOf(Collection $convs)
+    {
         $shownConvs = [];
         foreach($convs as $conv)
         {
-            $shown = $this->isShown($conv);
-
-            if ( $shown )
+            //if the conversation is shown for the current user add it to the shown conversations
+            if ( $this->isShown($conv) )
             {
                 $shownConvs[] = $conv;
             }

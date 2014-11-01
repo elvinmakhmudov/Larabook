@@ -71,6 +71,11 @@ App::error(function(Larabook\Conversations\Exceptions\ConversationNotFoundExcept
     return Redirect::route('new_message_path');
 });
 
+App::error(function(Larabook\Conversations\Exceptions\ConversationIsHiddenException $exception, $code)
+{
+    return Redirect::route('inbox_path');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Maintenance Mode Handler
