@@ -27,4 +27,18 @@ class MessageRepository {
 
         $message->save();
     }
+
+
+    /**
+     * Get all messages for the conversation since hidden date
+     *
+     * @param Conversation $conversation
+     * @param $hiddenDate
+     */
+    public function getAllFor(Conversation $conversation, $hiddenDate)
+    {
+        $messages = $conversation->messages()->where('created_at', '>', $hiddenDate)->with('sender')->orderBy('created_at')->get()->reverse();
+
+        return $messages;
+    }
 }

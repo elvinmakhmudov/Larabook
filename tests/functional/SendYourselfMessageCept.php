@@ -2,13 +2,9 @@
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 
 $I = new FunctionalTester($scenario);
-
 $I->am('a Larabook user');
-$I->wantTo('send a message to another Larabook user');
+$I->wantTo('send a message to myself');
 //couldn't find out why the test throwing the CovnersationNotFoundException so changed a little bit
-
-//setup
-$I->haveAnAccount(['username' => 'OtherUser']);
 
 //actions
 $I->signIn();
@@ -24,15 +20,16 @@ catch (ConversationNotFoundException $e)
 }
 
 $I->seeCurrentUrlEquals('/inbox/new');
-$I->fillField('Send to:','OtherUser');
+$I->fillField('Send to:','elvin');
 $I->fillField('Message:','some random message');
 $I->click('Send');
 
 //expectations
 $I->seeCurrentUrlEquals('/inbox');
-$I->see('OtherUser');
-$I->see('some random message');
+$I->see('elvin');
+$I->see('some random message','.preview');
+$I->see('some random message','.message');
 
-$I->click('OtherUser');
-$I->seeCurrentUrlEquals('/inbox?u=OtherUser');
-$I->see('some random message');
+$I->click('elvin','.preview');
+$I->seeCurrentUrlEquals('/inbox?u=elvin');
+$I->see('some random message','.message');

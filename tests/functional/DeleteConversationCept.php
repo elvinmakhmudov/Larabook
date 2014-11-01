@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 $I = new FunctionalTester($scenario);
 $I->am('a Larabook user');
 $I->wantTo('delete existing conversation');
@@ -6,6 +7,7 @@ $I->wantTo('delete existing conversation');
 $user = $I->signIn();
 $otheruser = $I->sendMessage('AnotherUser', 'other random message');
 $otheruser = $I->sendMessage('other', 'some random message');
+
 $I->click('Messages');
 
 //TODO::test is not working properly, but function is right

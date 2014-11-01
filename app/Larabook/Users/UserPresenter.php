@@ -17,6 +17,11 @@ class UserPresenter extends Presenter {
         return "https://www.gravatar.com/avatar/{$email}?s={$size}";
     }
 
+    public function profileUrl()
+    {
+        return "@".$this->entity->username;
+    }
+
     public function followerCount()
     {
         $count = $this->entity->followers()->count();

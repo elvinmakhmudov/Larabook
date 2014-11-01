@@ -1,7 +1,6 @@
 <?php namespace Larabook\Messages;
 
 use Larabook\Conversations\ConversationRepository;
-use Larabook\Conversations\Exceptions\ConversationIsHiddenException;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\User;
 use Larabook\Users\UserRepository;
@@ -87,20 +86,28 @@ class SendMessageCommandHandler implements CommandHandler {
             //get the user
             $user = $this->userRepo->findByUsername($command->sendTo);
 
-            try
-            {
-                $conversation = $this->conversationRepo->getConversationWith($user);
-            }
-            catch(ConversationIsHiddenException $e)
-            {
-                //TODO::create a table field called hidden_date and restruct the application logic
-            }
-            catch(ConversationNotFoundException $e)
-            {
-                //create a new conversation with User
-                $conversation = $this->conversationRepo->createConversationWith($user);
-            }
+            $conversation = $this->getOrCreateConversationWith($user);
+        }
 
+        return $conversation;
+    }
+
+    /**
+     * Get or create conversation with the user
+     *
+     * @param User $user
+     * @return array
+     */
+    public function getOrCreateConversationWith(User $user)
+    {
+        try
+        {
+            $conversation = $this->conversationRepo->getConversationWith($user);
+        }
+        catch(ConversationNotFoundException $e)
+        {
+            //create a new conversation with User
+            $conversation = $this->conversationRepo->createConversationWith($user);
         }
 
         return $conversation;

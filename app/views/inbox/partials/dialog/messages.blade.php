@@ -1,12 +1,12 @@
 <div class="dialog-messages">
-    @foreach($conv->messages->reverse() as $message)
-        <article class="media">
+    @foreach($messages as $message)
+        <article class="media message">
             <div class="pull-left">
                 @include('users.partials.avatar', ['user' => $message->sender ])
             </div>
 
-            <div class="media-body">
-                <h4 class="media-heading">{{ $message->sender->username }}</h4>
+            <div class="media-body message">
+                <h4 class="media-heading sender"><a href="{{ $message->sender->present()->profileUrl() }}">{{ $message->sender->username }}</a></h4>
                 {{ $message->content }}
             </div>
         </article>

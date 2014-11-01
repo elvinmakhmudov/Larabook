@@ -13,10 +13,10 @@
 
 ClassLoader::addDirectories(array(
 
-	app_path().'/commands',
-	app_path().'/controllers',
-	app_path().'/models',
-	app_path().'/database/seeds',
+    app_path().'/commands',
+    app_path().'/controllers',
+    app_path().'/models',
+    app_path().'/database/seeds',
 
 ));
 
@@ -48,7 +48,7 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 
 App::error(function(Exception $exception, $code)
 {
-	Log::error($exception);
+    Log::error($exception);
 });
 
 App::error(function(Laracasts\Validation\FormValidationException $exception, $code)
@@ -84,7 +84,7 @@ App::error(function(Larabook\Conversations\Exceptions\ConversationNotFoundExcept
 
 App::down(function()
 {
-	return Response::make("Be right back!", 503);
+    return Response::make("Be right back!", 503);
 });
 
 /**
@@ -96,6 +96,6 @@ App::down(function()
 | a nice separate location to store our route and application filter
 | definitions instead of putting them all in the main routes file.
 |
-*/
+ */
 
 require app_path().'/filters.php';

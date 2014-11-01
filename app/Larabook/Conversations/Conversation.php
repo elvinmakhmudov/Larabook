@@ -43,7 +43,14 @@ class Conversation extends \Eloquent {
             unset($usernames[$key]);
         }
 
-        return $this->getSingleValueInArray($usernames);
+        //if any username exists get that
+        if( $usernames )
+        {
+            return $this->getSingleValueInArray($usernames);
+        }
+
+        //or return current user's username
+        return $currentUser->username;
     }
 
 

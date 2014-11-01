@@ -3,6 +3,7 @@
 use Larabook\Conversations\DeleteConversationCommand;
 use Larabook\Conversations\getConversationCommand;
 use Larabook\Conversations\Previews\getPreviewsCommand;
+use Larabook\Messages\getMessagesCommand;
 use Larabook\Messages\SendMessageCommand;
 use Larabook\Forms\SendMessageForm;
 
@@ -39,8 +40,11 @@ class InboxController extends \BaseController {
 
         $previews = $this->execute(getPreviewsCommand::class);
 
+        $messages = $this->execute(getMessagesCommand::class, ['conversation' => $conversation]);
+
         return View::make('inbox.show')->withPreviews($previews)
-                                       ->withConversation($conversation);
+                                       ->withConversation($conversation)
+                                       ->withMessages($messages);
     }
 
     /**

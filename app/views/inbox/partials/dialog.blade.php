@@ -1,5 +1,5 @@
 <div class="dialog">
-    @if(isset($conv->messages))
+    @if(isset($messages))
 
         @include('inbox.partials.dialog.nav-bar')
 

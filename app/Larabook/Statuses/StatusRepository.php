@@ -47,6 +47,6 @@ class StatusRepository {
      */
     public function getStatusesOf(User $user)
     {
-        return Status::where('user_id', $user->id)->with('user')->get();
+        return Status::where('user_id', $user->id)->latest()->with('user')->get();
     }
 } 

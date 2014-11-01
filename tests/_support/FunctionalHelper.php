@@ -1,6 +1,7 @@
 <?php
 namespace Codeception\Module;
 
+use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Laracasts\TestDummy\Factory as TestDummy;
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
@@ -46,8 +47,17 @@ class FunctionalHelper extends \Codeception\Module
         $otheruser = $this->haveAnAccount(['username' => $username]);
 
         //actions
-        $I->click('Messages');
-        $I->click('New Message');
+
+        //workaround, waiting for Laravel module or codeception to catch exceptions that are defined in global.php
+        try
+        {
+            $I->click('Messages');
+            $I->click('New Message');
+        }
+        catch (ConversationNotFoundException $e)
+        {
+            $I->amOnPage('/inbox/new');
+        }
         $I->seeCurrentUrlEquals('/inbox/new');
         $I->fillField('Send to:', $username);
         $I->fillField('Message:', $message);
