@@ -26,11 +26,11 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     public function mainSetup()
     {
         $user = $this->repo->currentUser;
-        $otherUser= TestDummy::create('Larabook\Users\User');
+        $otherUser = TestDummy::create('Larabook\Users\User');
 
         $conversation = Conversation::create([]);
 
-        $message= TestDummy::create('Larabook\Messages\Message',[
+        $message = TestDummy::create('Larabook\Messages\Message',[
             'user_id' => $user->id,
             'conversation_id' => $conversation->id
         ]);
@@ -120,5 +120,32 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
         $conversation = $this->repo->createConversationWith($otherUser);
 
         $this->assertEquals($conversation->users->count(), 2);
+    }
+
+    /** @test */
+    public function it_shows_if_the_conversation_is_seen_by_somebody()
+    {
+        //change the hidden column for first user to true and save it
+        $pivot = $this->main['user']->conversations()->first()->pivot;
+        $pivot->hidden = true;
+        $pivot->save();
+
+        //change the hidden column for second user to true and save it
+        $pivot2 = $this->main['otherUser']->conversations()->first()->pivot;
+        $pivot2->hidden = true;
+        $pivot2->save();
+
+        $result = $this->repo->seenBySomebody($this->main['conversation']);
+
+        $this->assertFalse($result);
+    }
+
+    /** @test */
+    public function it_gets_all_shown_conversations_for_the_current_user()
+    {
+        $convs = $this->repo->getAllShown();
+
+        //check to equality by id
+        $this->assertEquals($convs[0]->id,$this->main['conversation']->id);
     }
 }

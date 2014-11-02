@@ -6,7 +6,6 @@ $I->wantTo('log out of my Larabook account');
 $I->signIn();
 
 $I->seeInCurrentUrl('/statuses');
-$I->see('Welcome back!');
 $I->assertTrue(Auth::check());
 
 $I->click('Log out');

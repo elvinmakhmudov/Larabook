@@ -96,10 +96,13 @@ class ConversationRepository {
      */
     public function findById($id)
     {
+        //throw an exception if the conversation does not exist for the current user
         $this->doesConversationExistsOrFail($id);
 
+        //grab the conversation
         $conversation = Conversation::find($id);
 
+        //throw an exception if the conversation is hidden for the current user
         $this->isConversationShownOrFail($conversation);
 
         return $conversation;
