@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Input;
+
 ClassLoader::addDirectories(array(
 
 	app_path().'/commands',
@@ -104,3 +106,4 @@ App::down(function()
 */
 
 require app_path().'/filters.php';
+require_once app_path().'/start/custom_helpers.php';

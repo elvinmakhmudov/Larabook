@@ -13,7 +13,7 @@
 
 App::before(function($request)
 {
-	//
+    Input::merge(array_htmlspecialchars(Input::all()));
 });
 
 

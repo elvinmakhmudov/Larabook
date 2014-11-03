@@ -24,7 +24,6 @@ class getMessagesCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        //TODO::get the proper messages(depends on hidden date)
         $hiddenDate = $this->conversationRepo->getHiddenDate($command->conversation);
 
         $messages = $this->messageRepo->getAllFor($command->conversation, $hiddenDate);
