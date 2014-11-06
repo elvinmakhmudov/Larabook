@@ -19,14 +19,18 @@ class ConversationRepository {
     /**
      * Get conversation between users
      *
-     * @param User $otherUser
-     * @throws ConversationIsHiddenException
-     * @throws ConversationNotFoundException
+     * @param $users
      * @return array
      */
-    public function getConversationWith(User $otherUser)
+    public function getConversationWith($users)
     {
-        return $this->getConversationBetween($this->currentUser, $otherUser);
+        //add the current user to the end of the users array
+        array_push($users, $this->currentUser);
+
+        //reverse so that first item will be the current user
+        $users = array_reverse($users);
+
+        return $this->getConversationBetween($users);
     }
 
     /**
@@ -41,25 +45,57 @@ class ConversationRepository {
     }
 
     /**
-     * Get conversation between 2 users
+     * Get conversation between users
      *
-     * @param User $user
-     * @param User $otherUser
-     * @return mixed
+     * @param $users
      * @throws ConversationNotFoundException
+     * @return mixed
      */
-    public function getConversationBetween(User $user, User $otherUser)
+    public function getConversationBetween($users)
     {
-        //if the users are not identical get the conversation
-        if( ! $user->is($otherUser) )
+        //if the users are not the same get the conversation
+        if( ! $this->areTheSame($users) )
         {
-            $convId = $this->getConversationIdBetween($user, $otherUser);
+            $convId = $this->getConversationIdBetween($users);
 
             return $this->findById($convId);
         }
 
         //if users are identical get the conversation with myself
         return $this->getConversationWithMyself();
+    }
+
+    /**
+     * Are the given users the same users?
+     *
+     * @param $users
+     * @return bool
+     */
+    public function areTheSame($users)
+    {
+
+        //how many times user is the same
+        $same = 0;
+        foreach ($users as $user)
+        {
+            if( $user->is($this->currentUser ))
+            {
+                $same++;
+            }
+        }
+
+        //if user was the same 2 or more times and count of users greater than the value of same return false
+        if($same >= 2)
+        {
+            if( count($users) > $same )
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -76,6 +112,7 @@ class ConversationRepository {
         {
             $users = $conversation->users;
 
+            //if first and last user of the conversation are the same
             if( $users->first() == $users->last() )
             {
                 return $conversation;
@@ -163,21 +200,86 @@ class ConversationRepository {
     /**
      * Get the common conversation id
      *
-     * @param User $user
-     * @param User $otherUser
      * @return mixed
      */
-    public function getConversationIdBetween(User $user, User $otherUser)
+    public function getConversationIdBetween($users)
     {
-        $currentUserConvIds= $this->userConversationIds($user);
-        $otherUserConvIds = $this->userConversationIds($otherUser);
+        $filteredConvsArray = [];
+        foreach ($users as $user)
+        {
+            //get user conversations
+            $userConvs = $this->getUserConvs($user);
 
-        //returns an array containing all the values of $convsIds[0] that are present in all the $convsIds array.
-        $matches = array_intersect($currentUserConvIds, $otherUserConvIds);
+            //filter conversations by count to prevent getting false conversations
+            $filteredConvsArray[] = $this->filterByCount($userConvs, count($users));
+        }
+
+        $matches = $this->conversations_intersect($filteredConvsArray);
 
         $convId = $this->getSingleValueInArray($matches);
 
         return $convId;
+    }
+
+    /**
+     * Intersect conversations by their Id
+     *
+     * @param $conversationsArray
+     * @return mixed
+     */
+    public function conversations_intersect($conversationsArray)
+    {
+        $idsArray = [];
+        foreach ($conversationsArray as $conversations)
+        {
+            $idsArray[] = $this->getIdsOf($conversations);
+        }
+
+
+        //returns an array containing all the values of $ids[0] that are present in all the $ids array.
+        //the first value will be the main user's conversation and so on
+        return call_user_func_array('array_intersect',$idsArray);
+    }
+
+
+    /**
+     * Get conversations ids by conversations
+     *
+     * @param $conversations
+     * @internal param $userConversations
+     * @return array
+     */
+    public function getIdsOf($conversations)
+    {
+        $ids= [];
+        foreach ($conversations as $conversation)
+        {
+            $ids[] = $conversation->id;
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Filter conversations by users count
+     *
+     * @param $conversations
+     * @param $usersCount
+     * @return array
+     */
+    public function filterByCount($conversations, $usersCount)
+    {
+        //TODO::$conversations is an array of the ids of the conversations not same conversations!!! change the function
+        $filteredConvs = [];
+        foreach ($conversations as $conversation)
+        {
+            if( $conversation->users_count == $usersCount )
+            {
+                $filteredConvs[] = $conversation;
+            }
+        }
+
+        return $filteredConvs;
     }
 
     /**
@@ -252,7 +354,7 @@ class ConversationRepository {
      */
     protected function userConversationIds(User $user)
     {
-        $conversations = $user->conversations()->get();
+        $conversations = $this->getUserConvs($user);
 
         $conversationIds = [];
         foreach($conversations as $conversation)
@@ -261,6 +363,22 @@ class ConversationRepository {
         }
 
         return $conversationIds;
+    }
+
+    /**
+     * Get user's conversations
+     *
+     * @param User $user
+     * @throws ConversationNotFoundException
+     * @return mixed
+     */
+    public function getUserConvs(User $user)
+    {
+        $conversations = $user->conversations()->get();
+
+        if( ! $conversations->isEmpty() ) return $conversations;
+
+        throw new ConversationNotFoundException;
     }
 
     /**
@@ -315,17 +433,37 @@ class ConversationRepository {
     /**
      * Create a conversation with the user
      *
-     * @param User $user
      */
-    public function createConversationWith(User $user)
+    public function createConversationWith($users)
+    {
+        $users[] = $this->currentUser;
+
+        return $this->createConversationBetween($users);
+    }
+
+    /*
+     * Create Conversation between users
+     *
+     * @param $users
+     * @return mixed
+     */
+    public function createConversationBetween($users)
     {
         $conversation = Conversation::create([]);
 
-        //attach current user to the conversation
-        $conversation->users()->attach($this->currentUser);
+        return $this->attachUsersToConv($users, $conversation);
+    }
 
-        //if other user is not the current user attach other user too
-        if( ! $user->is($this->currentUser))
+    /**
+     * Attach users to conversation
+     *
+     * @param $users
+     * @param $conversation
+     * @return \Larabook\Conversations\Conversation
+     */
+    public function attachUsersToConv($users, Conversation $conversation)
+    {
+        foreach ($users as $user)
         {
             $conversation->users()->attach($user);
         }

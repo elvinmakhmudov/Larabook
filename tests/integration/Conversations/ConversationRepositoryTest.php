@@ -29,6 +29,8 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
         $otherUser = TestDummy::create('Larabook\Users\User');
 
         $conversation = Conversation::create([]);
+        $conversation->users_count = 2;
+        $conversation->save();
 
         $message = TestDummy::create('Larabook\Messages\Message',[
             'user_id' => $user->id,
@@ -51,7 +53,7 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     /** @test */
     public function it_gets_conversation_between_users()
     {
-        $gotConversation = $this->repo->getConversationWith($this->main['otherUser']);
+        $gotConversation = $this->repo->getConversationWith([$this->main['otherUser']]);
 
         $this->assertEquals($this->main['conversation']->id, $gotConversation->id);
 
@@ -114,9 +116,9 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     /** @test */
     public function it_creates_conversation_with_a_user()
     {
-        $otherUser= TestDummy::create('Larabook\Users\User');
+        $users[] = TestDummy::create('Larabook\Users\User');
 
-        $conversation = $this->repo->createConversationWith($otherUser);
+        $conversation = $this->repo->createConversationWith($users);
 
         $this->assertEquals($conversation->users->count(), 2);
     }

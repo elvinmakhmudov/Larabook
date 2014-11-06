@@ -2,7 +2,7 @@
 
 use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
-use Larabook\Users\User;
+use Larabook\Users\Exceptions\UserNotFoundException;
 use Larabook\Users\UserRepository;
 use Laracasts\Commander\CommandHandler;
 use Laracasts\Commander\Events\DispatchableTrait;
@@ -11,7 +11,7 @@ class SendMessageCommandHandler implements CommandHandler {
 
     use DispatchableTrait;
 
-    public $userRepository;
+    public $userRepo;
     /**
      * @var ConversationRepository
      */
@@ -20,10 +20,6 @@ class SendMessageCommandHandler implements CommandHandler {
      * @var MessageRepository
      */
     private $messageRepo;
-    /**
-     * @var App
-     */
-    private $app;
 
     function __construct(UserRepository $userRepository, ConversationRepository $conversationRepository, MessageRepository $messageRepository)
     {
@@ -81,36 +77,72 @@ class SendMessageCommandHandler implements CommandHandler {
         }
         catch(ConversationNotFoundException $e)
         {
-            //if the conversation wasn't found probably username was sent
+            //if the conversation wasn't found probably usernames have been sent
 
-            //get the user
-            $user = $this->userRepo->findByUsername($command->sendTo);
+            $users = $this->getUsersByUsernames($command->sendTo);
 
-            $conversation = $this->getOrCreateConversationWith($user);
+            $conversation = $this->getOrCreateConversationWith($users);
         }
 
         return $conversation;
     }
 
     /**
-     * Get or create conversation with the user
+     * Get users that have been sent by their usernames
      *
-     * @param User $user
+     * @param $usernames
+     * @return array
+     * @throws UserNotFoundException
+     */
+    public function getUsersByUsernames($usernames)
+    {
+        $usernames = $this->sanitizeUsernames($usernames);
+
+        return $this->userRepo->getByUsernames($usernames);
+    }
+
+    /**
+     * Sanitize the usernames
+     *
+     * @param $usernames
      * @return array
      */
-    public function getOrCreateConversationWith(User $user)
+    public function sanitizeUsernames($usernames)
+    {
+        //split usernames string
+        $usernames = explode(',', $usernames);
+
+        //trim each username
+        $newUsernames = [];
+        foreach ($usernames as $username)
+        {
+            $newUsernames[] = trim($username);
+        }
+
+        //delete duplicate usernames
+        $newUsernames = array_unique($newUsernames);
+
+        return $newUsernames;
+    }
+
+    /**
+     * Get or create conversation with the user
+     *
+     * @return array
+     */
+    public function getOrCreateConversationWith($users)
     {
         try
         {
             //get the conversation
-            $conversation = $this->conversationRepo->getConversationWith($user);
+            $conversation = $this->conversationRepo->getConversationWith($users);
 
             $this->setShownIfHidden($conversation);
         }
         catch(ConversationNotFoundException $e)
         {
             //create a new conversation with User
-            $conversation = $this->conversationRepo->createConversationWith($user);
+            $conversation = $this->conversationRepo->createConversationWith($users);
         }
 
         return $conversation;

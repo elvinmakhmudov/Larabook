@@ -39,7 +39,26 @@ class UserRepository {
 
         if( ! is_null($user)) return $user;
 
-        throw new UserNotFoundException('User not found');
+        throw new UserNotFoundException('User' . $username . ' was not found');
+    }
+
+    /**
+     * Get by usernames
+     *
+     * @param $usernames
+     * @throws UserNotFoundException
+     * @return array
+     */
+    public function getByUsernames($usernames)
+    {
+        $users = [];
+        foreach ($usernames as $username)
+        {
+            //get the user
+            $users[] = $this->findByUsername($username);
+        }
+
+        return $users;
     }
 
     /**
