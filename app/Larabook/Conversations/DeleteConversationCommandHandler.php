@@ -28,7 +28,7 @@ class deleteConversationCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        $conversation = $this->conversationRepo->findById($command->convToDelete);
+        $conversation = $this->conversationRepo->findByIdOrFail($command->convToDelete);
 
         //set hidden attribute to the conversation
         $this->conversationRepo->setHiddenFor($conversation);

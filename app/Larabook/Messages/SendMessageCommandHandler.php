@@ -1,6 +1,7 @@
 <?php namespace Larabook\Messages;
 
 use Larabook\Conversations\ConversationRepository;
+use Larabook\Conversations\Exceptions\ConversationIsHiddenException;
 use Larabook\Conversations\Exceptions\ConversationNotFoundException;
 use Larabook\Users\Exceptions\UserNotFoundException;
 use Larabook\Users\UserRepository;
@@ -73,12 +74,11 @@ class SendMessageCommandHandler implements CommandHandler {
         //check if conversation already exist
         try
         {
-            $conversation = $this->conversationRepo->findById($command->sendTo);
+            $conversation = $this->conversationRepo->findByIdOrFail($command->sendTo);
         }
         catch(ConversationNotFoundException $e)
         {
             //if the conversation wasn't found probably usernames have been sent as we are using the same 'send' method in inboxcontroller
-
 
             $users = $this->getUsersByUsernames($command->sendTo);
 
@@ -137,32 +137,27 @@ class SendMessageCommandHandler implements CommandHandler {
         {
             //get the conversation
             $conversation = $this->conversationRepo->getConversationWith($users);
-
-            $this->setShownIfHidden($conversation);
         }
         catch(ConversationNotFoundException $e)
         {
             //create a new conversation with User
             $conversation = $this->conversationRepo->createConversationWith($users);
         }
+        catch(ConversationIsHiddenException $e)
+        {
+            //conversation has been send as a parameter to the exception
+            $conversation = $e->conversation;
+
+            //get all conversation users
+            $users = $this->conversationRepo->getConversationUsers($conversation);
+
+            //set the hidden field to false for all users so they can get messages
+            foreach ($users as $user)
+            {
+                $this->conversationRepo->setShownFor($user, $conversation);
+            }
+        }
 
         return $conversation;
     }
-
-    /**
-     * If the conversation is not shown for the current user set hidden field to 0
-     *
-     * @param $conversation
-     * @return bool
-     */
-    public function setShownIfHidden($conversation)
-    {
-        //if the the conversation is not shown for the current user
-        if ( ! $this->conversationRepo->isShown($conversation))
-        {
-            //set hidden field to 0 for the conversation
-            return $this->conversationRepo->setShownFor($conversation);
-        }
-    }
-
 }

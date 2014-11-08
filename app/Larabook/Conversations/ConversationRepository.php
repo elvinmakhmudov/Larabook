@@ -27,6 +27,9 @@ class ConversationRepository {
         //add the current user to the end of the users array
         array_push($users, $this->currentUser);
 
+        //delete duplicated users
+        $users = array_unique($users);
+
         //reverse so that first item will be the current user
         $users = array_reverse($users);
 
@@ -55,87 +58,40 @@ class ConversationRepository {
     {
         $convId = $this->getConversationIdBetween($users);
 
-        return $this->findById($convId);
+        return $this->findByIdOrFail($convId);
     }
 
     /**
-     * Are the given users the same users?
-     *
-     * @param $users
-     * @return bool
-     */
-    public function areTheSame($users)
-    {
-
-        //how many times user is the same
-        $same = 0;
-        foreach ($users as $user)
-        {
-            if( $user->is($this->currentUser ))
-            {
-                $same++;
-            }
-        }
-
-        //if user was the same 2 or more times and count of users greater than the value of same return false
-        if($same >= 2)
-        {
-            if( count($users) > $same )
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the conversation with myself
-     *
-     * @return mixed
-     * @throws ConversationNotFoundException
-     */
-    public function getConversationWithMyself()
-    {
-        $conversations = $this->currentUser->conversations()->with('users')->get();
-
-        foreach ($conversations as $conversation)
-        {
-            $users = $conversation->users;
-
-            //if first and last user of the conversation are the same
-            if( $users->first() == $users->last() )
-            {
-                return $conversation;
-            }
-        }
-
-        throw new ConversationNotFoundException;
-    }
-
-
-    /**
-     * Find conversation by Id
+     * Find conversation by Id or throw proper exception
      *
      * @param $id
      * @throws ConversationIsHiddenException
      * @throws ConversationNotFoundException
      * @return mixed
      */
-    public function findById($id)
+    public function findByIdOrFail($id)
     {
         //throw an exception if the conversation does not exist for the current user
-        $this->doesConversationExistsOrFail($id);
+        $this->doesConversationExistOrFail($id);
 
         //grab the conversation
-        $conversation = Conversation::find($id);
+        $conversation = $this->findById($id);
 
         //throw an exception if the conversation is hidden for the current user
         $this->isConversationShownOrFail($conversation);
 
         return $conversation;
+    }
+
+    /**
+     * Find a conversation by its id
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function findById($id)
+    {
+        return Conversation::find($id);
     }
 
     /**
@@ -145,7 +101,7 @@ class ConversationRepository {
      * @return bool
      * @throws ConversationNotFoundException
      */
-    public function doesConversationExistsOrFail($id)
+    public function doesConversationExistOrFail($id)
     {
         if( ! $this->doesConversationExists($id) )
         {
@@ -166,7 +122,8 @@ class ConversationRepository {
     {
         if( ! $this->isShown($conversation))
         {
-            throw new ConversationIsHiddenException('Conversation is hidden');
+            //send the hidden conversation as an argument
+            throw new ConversationIsHiddenException('Conversation is hidden', $conversation);
         }
 
         return true;
@@ -180,7 +137,12 @@ class ConversationRepository {
      */
     public function doesConversationExists($id)
     {
-        $convIds = $this->userConversationIds($this->currentUser);
+        $conversations = $this->getUserConvs($this->currentUser);
+
+        $convIds = $conversations->map(function($conversation)
+        {
+            return $conversation->id;
+        })->toArray();
 
         if( ! in_array($id, $convIds))
         {
@@ -258,6 +220,7 @@ class ConversationRepository {
      *
      * @param $conversations
      * @param $usersCount
+     * @throws ConversationNotFoundException
      * @return array
      */
     public function filterByCount($conversations, $usersCount)
@@ -271,7 +234,10 @@ class ConversationRepository {
             }
         }
 
-        return $filteredConvs;
+        //if any conversation is found return filtered conversations
+        if( ! empty($filteredConvs)) return $filteredConvs;
+
+        throw new ConversationNotFoundException;
     }
 
     /**
@@ -338,26 +304,6 @@ class ConversationRepository {
     }
 
     /**
-     * Get all conversation Ids of the user
-     *
-     * @internal param $conversations
-     * @param User $user
-     * @return array
-     */
-    protected function userConversationIds(User $user)
-    {
-        $conversations = $this->getUserConvs($user);
-
-        $conversationIds = [];
-        foreach($conversations as $conversation)
-        {
-            $conversationIds[] = $conversation->id;
-        }
-
-        return $conversationIds;
-    }
-
-    /**
      * Get user's conversations
      *
      * @param User $user
@@ -410,16 +356,39 @@ class ConversationRepository {
     }
 
     /**
-     * Set hidden field to false for the conversation
+     * Set hidden field of the conversation to false for the current user
      *
      * @param Conversation $conversation
      * @return bool
      */
-    public function setShownFor(Conversation $conversation)
+    public function setShown(Conversation $conversation)
     {
-        $this->currentUser->conversations()->updateExistingPivot($conversation->id, ['hidden' => false]);
+        return $this->setShownFor($this->currentUser, $conversation);
+    }
+
+    /**
+     * Set hidden field of the conversation to false for the user
+     *
+     * @param User $user
+     * @param Conversation $conversation
+     * @return \Larabook\Conversations\Conversationn
+     */
+    public function setShownFor(User $user, Conversation $conversation)
+    {
+        $user->conversations()->updateExistingPivot($conversation->id, ['hidden' => false]);
 
         return true;
+    }
+
+    /**
+     * Get the users of the conversation
+     *
+     * @param Conversation $conversation
+     * @return
+     */
+    public function getConversationUsers(Conversation $conversation)
+    {
+        return $conversation->users()->get();
     }
 
     /**
