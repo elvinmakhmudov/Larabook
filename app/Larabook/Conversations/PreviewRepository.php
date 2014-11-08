@@ -31,10 +31,10 @@ class PreviewRepository {
         //first() method because in the messages relationship we get the messages with latest() method
         $lastMessage = $conv->messages->first();
 
-        $otherUsername = $conv->otherUserInConversation;
+        $users= $conv->users;
 
         //TODO::bad code
-        $preview = new ConversationPreview($lastMessage->sender->username, $otherUsername, $lastMessage->content, $conv->id);
+        $preview = new ConversationPreview($lastMessage->sender, $users, $lastMessage->content, $conv->id);
 
         return $preview;
     }

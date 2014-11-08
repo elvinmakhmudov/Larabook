@@ -53,16 +53,9 @@ class ConversationRepository {
      */
     public function getConversationBetween($users)
     {
-        //if the users are not the same get the conversation
-        if( ! $this->areTheSame($users) )
-        {
-            $convId = $this->getConversationIdBetween($users);
+        $convId = $this->getConversationIdBetween($users);
 
-            return $this->findById($convId);
-        }
-
-        //if users are identical get the conversation with myself
-        return $this->getConversationWithMyself();
+        return $this->findById($convId);
     }
 
     /**
@@ -236,9 +229,9 @@ class ConversationRepository {
         }
 
 
-        //returns an array containing all the values of $ids[0] that are present in all the $ids array.
+        //returns an array containing all the values of $idsArray[0] that are present in all the $idsArray array.
         //the first value will be the main user's conversation and so on
-        return call_user_func_array('array_intersect',$idsArray);
+        return call_user_func_array('array_intersect', $idsArray);
     }
 
 
@@ -269,7 +262,6 @@ class ConversationRepository {
      */
     public function filterByCount($conversations, $usersCount)
     {
-        //TODO::$conversations is an array of the ids of the conversations not same conversations!!! change the function
         $filteredConvs = [];
         foreach ($conversations as $conversation)
         {
@@ -438,6 +430,9 @@ class ConversationRepository {
     {
         $users[] = $this->currentUser;
 
+        //remove duplicate users from the array
+        $users = array_unique($users);
+
         return $this->createConversationBetween($users);
     }
 
@@ -449,7 +444,12 @@ class ConversationRepository {
      */
     public function createConversationBetween($users)
     {
+        //create Conversation
         $conversation = Conversation::create([]);
+
+        //add update users_count field to the count of the users
+        $conversation->users_count = count($users);
+        $conversation->save();
 
         return $this->attachUsersToConv($users, $conversation);
     }

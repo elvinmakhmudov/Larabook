@@ -60,14 +60,6 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
         $this->assertEquals($this->main['conversation']->messages()->first()->content, $this->main['message']->content);
     }
 
-    /** @test */
-    public function it_gets_other_users_username()
-    {
-        $otherUserUsername = $this->main['conversation']->otherUserInConversation;
-
-        $this->assertEquals($otherUserUsername, $this->main['otherUser']->username);
-    }
-
     /*
      * TODO::move to previewrepositorytest
      */

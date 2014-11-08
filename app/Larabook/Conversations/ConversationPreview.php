@@ -1,19 +1,29 @@
 <?php namespace Larabook\Conversations;
 
+use Laracasts\Presenter\PresentableTrait;
+
 class ConversationPreview {
+
+    use PresentableTrait;
+
+    /**
+     * Path to the presenter for a preview
+     * @var string
+     */
+    protected $presenter = 'Larabook\Conversations\Previews\PreviewPresenter';
 
     public $id;
 
-    public $otherUser;
+    public $users;
 
     public $content;
 
     public $sender;
 
-    function __construct($sender, $otherUser, $content, $id)
+    function __construct($sender, $users, $content, $id)
     {
         $this->sender = $sender;
-        $this->otherUser = $otherUser;
+        $this->users= $users;
         $this->content = $content;
         $this->id = $id;
     }

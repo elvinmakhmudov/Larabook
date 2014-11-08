@@ -1,5 +1,6 @@
 <?php namespace Larabook\Users;
 
+use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\Presenter;
 
 class UserPresenter extends Presenter {
@@ -37,5 +38,18 @@ class UserPresenter extends Presenter {
         $plural = str_plural('Status',$statusCount);
 
         return "{$statusCount} {$plural}";
+    }
+
+    /**
+     * If sender is the current user instead of username show "Me"
+     */
+    public function username()
+    {
+        if( $this->entity->username == Auth::user()->username )
+        {
+           return "Me" ;
+        }
+
+        return $this->entity->username;
     }
 }

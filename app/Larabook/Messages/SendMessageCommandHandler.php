@@ -77,7 +77,8 @@ class SendMessageCommandHandler implements CommandHandler {
         }
         catch(ConversationNotFoundException $e)
         {
-            //if the conversation wasn't found probably usernames have been sent
+            //if the conversation wasn't found probably usernames have been sent as we are using the same 'send' method in inboxcontroller
+
 
             $users = $this->getUsersByUsernames($command->sendTo);
 

@@ -39,7 +39,7 @@ class UserRepository {
 
         if( ! is_null($user)) return $user;
 
-        throw new UserNotFoundException('User' . $username . ' was not found');
+        throw new UserNotFoundException('User ' . $username . ' was not found');
     }
 
     /**

@@ -2,7 +2,7 @@
     @foreach($previews as $preview)
        <div class="list-group preview">
          <a href="{{ route('inbox_path'). '?c='.$preview->id }}" class="list-group-item active">
-            <h4 class="list-group-item-heading">{{ $preview->otherUser }}</h4>
+            <h4 class="list-group-item-heading">{{ $preview->present()->otherUsers() }}</h4>
             <p class="list-group-item-text">{{ $preview->content }}</p>
          </a>
        </div>
