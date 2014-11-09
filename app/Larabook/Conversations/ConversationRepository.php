@@ -103,7 +103,7 @@ class ConversationRepository {
      */
     public function doesConversationExistOrFail($id)
     {
-        if( ! $this->doesConversationExists($id) )
+        if( ! $this->doesConversationExist($id) )
         {
             throw new ConversationNotFoundException('Conversation not found');
         }
@@ -135,9 +135,22 @@ class ConversationRepository {
      * @param $id
      * @return bool
      */
-    public function doesConversationExists($id)
+    public function doesConversationExist($id)
     {
-        $conversations = $this->getUserConvs($this->currentUser);
+        return $this->doesConversationExistFor($this->currentUser, $id);
+    }
+
+    /**
+     * Does the conversation one of the User's conversations?
+     *
+     * @param User $user
+     * @param $id
+     * @throws ConversationNotFoundException
+     * @return bool
+     */
+    public function doesConversationExistFor(User $user, $id)
+    {
+        $conversations = $this->getUserConvs($user);
 
         $convIds = $conversations->map(function($conversation)
         {
@@ -169,11 +182,9 @@ class ConversationRepository {
             $filteredConvsArray[] = $this->filterByCount($userConvs, count($users));
         }
 
-        $matches = $this->conversations_intersect($filteredConvsArray);
+        $matches = $this->intersectConversations($filteredConvsArray);
 
-        $convId = $this->getSingleValueInArray($matches);
-
-        return $convId;
+        return $this->getSingleValueInArray($matches);
     }
 
     /**
@@ -182,7 +193,7 @@ class ConversationRepository {
      * @param $conversationsArray
      * @return mixed
      */
-    public function conversations_intersect($conversationsArray)
+    public function intersectConversations($conversationsArray)
     {
         $idsArray = [];
         foreach ($conversationsArray as $conversations)
@@ -206,7 +217,7 @@ class ConversationRepository {
      */
     public function getIdsOf($conversations)
     {
-        $ids= [];
+        $ids = [];
         foreach ($conversations as $conversation)
         {
             $ids[] = $conversation->id;
