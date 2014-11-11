@@ -74,7 +74,7 @@ class SendMessageCommandHandler implements CommandHandler {
         //check if conversation already exist
         try
         {
-            $conversation = $this->conversationRepo->findByIdOrFail($command->sendTo);
+            $conversation = $this->conversationRepo->findAndCheck($command->sendTo);
         }
         catch(ConversationNotFoundException $e)
         {
@@ -135,8 +135,8 @@ class SendMessageCommandHandler implements CommandHandler {
     {
         try
         {
-            //get the conversation
-            $conversation = $this->conversationRepo->getConversationWith($users);
+           //get the conversation
+            $conversation = $this->conversationRepo->getWithAndCheck($users);
         }
         catch(ConversationNotFoundException $e)
         {

@@ -28,7 +28,7 @@ class getConversationCommandHandler implements CommandHandler {
     {
         try
         {
-            $conversation = $this->conversationRepository->findByIdOrFail($command->conversationId);
+            $conversation = $this->conversationRepository->findAndCheck($command->conversationId);
         }
         catch(ConversationNotFoundException $e)
         {

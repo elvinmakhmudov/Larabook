@@ -53,7 +53,7 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     /** @test */
     public function it_gets_conversation_between_users()
     {
-        $gotConversation = $this->repo->getConversationWith([$this->main['otherUser']]);
+        $gotConversation = $this->repo->getWithAndCheck([$this->main['otherUser']]);
 
         $this->assertEquals($this->main['conversation']->id, $gotConversation->id);
 

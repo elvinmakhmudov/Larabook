@@ -23,7 +23,7 @@ class ConversationPreview {
     function __construct($sender, $users, $content, $id)
     {
         $this->sender = $sender;
-        $this->users= $users;
+        $this->users = $users;
         $this->content = $content;
         $this->id = $id;
     }

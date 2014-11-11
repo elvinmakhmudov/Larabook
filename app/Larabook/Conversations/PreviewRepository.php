@@ -1,6 +1,4 @@
-<?php  namespace Larabook\Conversations; 
-
-use Illuminate\Support\Facades\Auth;
+<?php  namespace Larabook\Conversations;
 
 class PreviewRepository {
     /**
