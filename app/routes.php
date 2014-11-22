@@ -50,12 +50,12 @@ Route::get('logout', [
  */
 Route::get('statuses', [
     'as' => 'statuses_path',
-    'uses' => 'StatusesController@show'
+    'uses' => 'StatusesController@index'
 ]);
 
 Route::post('statuses', [
     'as' => 'statuses_path',
-    'uses' => 'StatusesController@publish'
+    'uses' => 'StatusesController@action'
 ]);
 
 /**

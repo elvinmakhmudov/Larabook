@@ -22,6 +22,7 @@ class Get {
      */
     public function with($users)
     {
+        //TODO::write another function using query builder to improve performance
         //add the current user to the end of the users array
         array_push($users, $this->currentUser);
 

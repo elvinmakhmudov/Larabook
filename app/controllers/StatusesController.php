@@ -1,10 +1,25 @@
 <?php
 
+use Illuminate\Support\Facades\Response;
 use Larabook\Forms\PublishStatusForm;
 use Larabook\Statuses\PublishStatusCommand;
 use Larabook\Statuses\StatusRepository;
 
 class StatusesController extends \BaseController {
+
+    public $ajaxActions = [
+        'show',
+        'publish'
+    ];
+
+    public $ajaxResponseFormat = [
+        'id',
+        'body',
+        'created_at',
+        'user' => [
+            'username'
+            ]
+        ];
 
     protected $statusRepository;
     protected  $publishStatusForm;
@@ -16,6 +31,26 @@ class StatusesController extends \BaseController {
         $this->beforeFilter('auth');
     }
 
+    /**
+     * Get the action name and if exists in allowed methods trigger the method
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function action()
+    {
+        return $this->doAction(Input::get('action'), $this->ajaxActions);
+    }
+
+    /**
+     * Show the main page
+     *
+     * @return mixed
+     */
+    public function index()
+    {
+        return View::make('statuses.show');
+    }
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -23,10 +58,13 @@ class StatusesController extends \BaseController {
 	 */
 	public function show()
 	{
-        $statuses = $this->statusRepository->getFeed();
+        $statuses = $this->statusRepository->getFeed()->toArray();
 
-        return View::make('statuses.show', compact('statuses'));
+        $statuses = $this->getAjaxResponseFor($statuses, $this->ajaxResponseFormat);
+
+        return Response::json(compact('statuses'));
 	}
+
 
 	/**
      * Save a new status
@@ -42,7 +80,9 @@ class StatusesController extends \BaseController {
 
         $this->execute(PublishStatusCommand::class, $input);
 
-        Flash::message('Your status has been updated');
-        return Redirect::back();
+        return Response::json('okay', 200);
+
+//        Flash::message('Your status has been updated');
+//        return Redirect::back();
 	}
 }

@@ -1,10 +1,12 @@
 <?php
 
+use controllers\Traits\ActionTrait;
+use controllers\Traits\AjaxResponseTrait;
 use Laracasts\Commander\CommanderTrait;
 
 class BaseController extends Controller {
 
-    use CommanderTrait;
+    use CommanderTrait, ActionTrait, AjaxResponseTrait;
 	/**
 	 * Setup the layout used by the controller.
 	 *

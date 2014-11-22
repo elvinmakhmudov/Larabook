@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 </head>
 <body>
+    <script src="{{ asset('js/jquery-2.1.1.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 
     @include('layouts.partials.nav')
 
@@ -15,8 +17,6 @@
 
         @yield('content')
     </div>
-    <script src="{{ asset('js/jquery-2.1.1.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 
 </body>
 </html>

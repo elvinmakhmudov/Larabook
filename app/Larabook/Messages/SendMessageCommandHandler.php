@@ -120,10 +120,8 @@ class SendMessageCommandHandler implements CommandHandler {
             $newUsernames[] = trim($username);
         }
 
-        //delete duplicate usernames
-        $newUsernames = array_unique($newUsernames);
-
-        return $newUsernames;
+        //delete duplicate usernames and return
+        return array_unique($newUsernames);
     }
 
     /**
