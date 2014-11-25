@@ -28,15 +28,21 @@ class StatusRepository {
     /**
      * Get the feed for a user.
      *
+     * @param int $page
      * @return mixed
      */
-    public function getFeed()
+    public function getFeed($page = 0)
     {
+        //how many statuses per page
+        $pageSize = 10;
+
+        $from = $page * $pageSize;
+
         $userIds = $this->currentUser->followedUsers()->lists('followed_id');
         //to show own statuses
         $userIds[] = $this->currentUser->id;
 
-        return Status::whereIn('user_id', $userIds)->latest()->with('user')->get();
+        return Status::whereIn('user_id', $userIds)->latest()->skip($from)->take($pageSize)->with('user')->get();
     }
 
     /**

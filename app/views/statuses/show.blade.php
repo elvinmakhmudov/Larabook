@@ -8,7 +8,11 @@
 
         @include('statuses.partials.publish-status-form')
 
-        <div id="statuses"></div>
+        @include('statuses.partials.status-template')
+
+        <div class="statuses"></div>
+
+        <button class="btn btn-primary form-control" type="submit" id="loadMoreButton" value='0'>Load more statuses...</button>
 
         {{--@include('statuses.partials.statuses')--}}
         </div>

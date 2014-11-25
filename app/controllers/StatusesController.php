@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Response;
 use Larabook\Forms\PublishStatusForm;
+use Larabook\Statuses\Ajax\GetStatusesCommand;
+use Larabook\Statuses\Ajax\ShowStatusesRequest;
 use Larabook\Statuses\PublishStatusCommand;
-use Larabook\Statuses\StatusRepository;
 
 class StatusesController extends \BaseController {
 
@@ -12,22 +13,26 @@ class StatusesController extends \BaseController {
         'publish'
     ];
 
+    //what values should response have
     public $ajaxResponseFormat = [
         'id',
         'body',
         'created_at',
         'user' => [
             'username'
-            ]
-        ];
+        ]
+    ];
 
-    protected $statusRepository;
     protected  $publishStatusForm;
+    /**
+     * @var ShowStatusesRequest
+     */
+    private $showStatusesRequest;
 
-    function __construct(PublishStatusForm $publishStatusForm, StatusRepository $statusRepository)
+    function __construct(PublishStatusForm $publishStatusForm, ShowStatusesRequest $showStatusesRequest)
     {
-        $this->statusRepository = $statusRepository;
         $this->publishStatusForm = $publishStatusForm;
+        $this->showStatusesRequest = $showStatusesRequest;
         $this->beforeFilter('auth');
     }
 
@@ -58,10 +63,16 @@ class StatusesController extends \BaseController {
 	 */
 	public function show()
 	{
-        $statuses = $this->statusRepository->getFeed()->toArray();
+        //validate the ajax request
+        $this->showStatusesRequest->validate(Input::all());
 
+        //get statuses
+        $statuses = $this->execute(GetStatusesCommand::class);
+
+        //get in given ajax response format
         $statuses = $this->getAjaxResponseFor($statuses, $this->ajaxResponseFormat);
 
+        //response
         return Response::json(compact('statuses'));
 	}
 
@@ -78,9 +89,15 @@ class StatusesController extends \BaseController {
 
         $this->publishStatusForm->validate($input);
 
-        $this->execute(PublishStatusCommand::class, $input);
+        //publish the status
+        $status = $this->execute(PublishStatusCommand::class, $input)->toArray();
 
-        return Response::json('okay', 200);
+        //add the user to the status array
+        $status['user'] = Auth::user();
+
+        $status = $this->getAjaxResponse($status, $this->ajaxResponseFormat);
+
+        return Response::json($status);
 
 //        Flash::message('Your status has been updated');
 //        return Redirect::back();

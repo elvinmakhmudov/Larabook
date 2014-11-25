@@ -11,13 +11,13 @@ trait AjaxResponseTrait {
      */
     public function getAjaxResponseFor($objects, $responseTemplate)
     {
-        $new = [];
+        $response = [];
         foreach ($objects as $object)
         {
-            $new[] = $this->getAjaxResponse($object, $responseTemplate);
+            $response[] = $this->getAjaxResponse($object, $responseTemplate);
         }
 
-        return $new;
+        return $response;
     }
 
     /**

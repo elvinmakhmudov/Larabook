@@ -67,6 +67,7 @@ class SendMessageCommandHandler implements CommandHandler {
     /**
      * If conversation exist get that or create a new one
      *
+     * @param $command
      * @return array
      */
     public function getProperConversation($command)
@@ -127,6 +128,7 @@ class SendMessageCommandHandler implements CommandHandler {
     /**
      * Get or create conversation with the user
      *
+     * @param $users
      * @return array
      */
     public function getOrCreateConversationWith($users)
