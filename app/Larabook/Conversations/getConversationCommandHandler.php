@@ -29,6 +29,9 @@ class getConversationCommandHandler implements CommandHandler {
         try
         {
             $conversation = $this->conversationRepository->findAndCheck($command->conversationId);
+
+            //after we've fetched the conversation set the conversation's unread field to false
+            $this->conversationRepository->setRead($conversation);
         }
         catch(ConversationNotFoundException $e)
         {

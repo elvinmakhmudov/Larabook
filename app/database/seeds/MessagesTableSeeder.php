@@ -13,18 +13,22 @@ class MessagesTableSeeder extends Seeder {
         $faker = Faker::create();
         $sender = User::where('username','elvin')->first();
         $usersIds = User::lists('id');
+        $conversationCount = 10;
+        $messagesCount = 10;
 
-        for( $i=0 ; $i <10 ; $i++ )
+        for( $i=0 ; $i < $conversationCount ; $i++ )
         {
             $conversation = Conversation::create([]);
 
-            $conversation->users()->attach($sender);
-            $conversation->users()->attach($faker->randomElement($usersIds));
+            $randomUser = $faker->randomElement($usersIds);
 
-            for( $j=0 ; $j <10 ; $j++ )
+            $conversation->users()->attach($randomUser);
+            $conversation->users()->attach($sender);
+
+            for( $j=0 ; $j < $messagesCount ; $j++ )
             {
                 $message = Message::create([
-                    'user_id' => $sender->id,
+                    'user_id' => $faker->randomElement([$randomUser, $sender->id]),
                     'content' => $faker->sentence(),
                     'conversation_id' => $conversation->id,
                 ]);

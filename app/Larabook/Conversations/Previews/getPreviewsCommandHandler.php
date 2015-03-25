@@ -1,5 +1,6 @@
 <?php namespace Larabook\Conversations\Previews;
 
+use Illuminate\Support\Facades\Paginator;
 use Larabook\Conversations\ConversationRepository;
 use Larabook\Conversations\PreviewRepository;
 use Laracasts\Commander\CommandHandler;
@@ -23,7 +24,7 @@ class getPreviewsCommandHandler implements CommandHandler {
      */
     public function handle($command)
     {
-        $conversations = $this->conversationRepo->getAllShown();
+        $conversations = $this->conversationRepo->getPaginatedShown(6);
 
         $previews = $this->previewRepo->getPreviewsOf($conversations);
 

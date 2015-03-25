@@ -52,4 +52,34 @@ class Set {
 
         return true;
     }
+
+    /**
+     * Set the unread column to true
+     *
+     * @param User $user
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function unread(User $user, Conversation $conversation)
+    {
+        $user->conversations()->updateExistingPivot($conversation->id, ['unread' => true]);
+
+        return true;
+    }
+
+    /**
+     * Set the conversation to read
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function read(Conversation $conversation)
+    {
+        $this->currentUser->conversations()->updateExistingPivot($conversation->id, ['unread' => false ]);
+
+        //update the local pivot records for performance improvements
+        $this->currentUser->conversations->find($conversation->id)->pivot->unread = false;
+
+        return true;
+    }
 }

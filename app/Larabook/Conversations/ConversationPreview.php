@@ -19,12 +19,14 @@ class ConversationPreview {
     public $content;
 
     public $sender;
+    public $unread;
 
-    function __construct($sender, $users, $content, $id)
+    function __construct($sender, $users, $content, $id, $unread)
     {
         $this->sender = $sender;
         $this->users = $users;
         $this->content = $content;
         $this->id = $id;
+        $this->unread = $unread;
     }
 }

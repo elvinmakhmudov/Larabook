@@ -203,16 +203,11 @@ class Get {
      */
     public function hiddenConvs(User $user)
     {
-        $hiddenConvs = [];
-        foreach($user->conversations as $conv)
-        {
-            if($conv->pivot->hidden == true)
-            {
-                $hiddenConvs[] = $conv->id;
+        return $user->conversations->filter(function($conv) {
+            if($conv->pivot->hidden == true) {
+                return true;
             }
-        }
-
-        return $hiddenConvs;
+        });
     }
 
     /**
@@ -246,5 +241,19 @@ class Get {
     public function hiddenDate(Conversation $conversation)
     {
         return $hiddenDate = $this->currentUser->conversations()->find($conversation->id)->hidden_date;
+    }
+
+    /**
+     * Get the unread conversations
+     *
+     * @return array
+     */
+    public function unreadConvs()
+    {
+        return $this->currentUser->conversations->filter(function($conv) {
+            if( $conv->pivot->unread == true ) {
+                return true;
+            }
+        });
     }
 }

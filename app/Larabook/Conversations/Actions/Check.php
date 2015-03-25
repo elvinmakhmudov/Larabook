@@ -76,11 +76,7 @@ class Check {
      */
     public function isShownFor(User $user, Conversation $conversation)
     {
-        $hiddenConvs = $this->get->hiddenConvs($user);
-
-        $shown = ! in_array( $conversation->id, $hiddenConvs);
-
-        return $shown;
+        return ! $this->get->hiddenConvs($user)->find($conversation->id);
     }
 
     /**
@@ -137,5 +133,17 @@ class Check {
         }
 
         return false;
+    }
+
+    /**
+     * Is the given conversation unread by the current user
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function isUnread(Conversation $conversation)
+    {
+        return $this->currentUser->conversations()->find($conversation->id)->pivot->unread;
+        return $this->get->unreadConvs()->find($conversation->id);
     }
 }

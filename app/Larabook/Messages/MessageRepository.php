@@ -31,14 +31,16 @@ class MessageRepository {
 
 
     /**
-     * Get all messages for the conversation since hidden date
+     * Get number of messages for the conversation since hidden date
      *
      * @param Conversation $conversation
      * @param $hiddenDate
+     * @param $howMany
+     * @return
      */
-    public function getAllFor(Conversation $conversation, $hiddenDate)
+    public function getPaginatedFor(Conversation $conversation, $hiddenDate, $howMany = 10)
     {
-        return $conversation->messages()->where('created_at', '>', $hiddenDate)->with('sender')->orderBy('created_at')->get()->reverse();
+        return $conversation->messages()->where('created_at', '>', $hiddenDate)->with('sender')->orderBy('created_at')->simplePaginate($howMany);
     }
 
     /**

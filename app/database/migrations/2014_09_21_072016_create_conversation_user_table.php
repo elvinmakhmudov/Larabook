@@ -19,6 +19,7 @@ class CreateConversationUserTable extends Migration {
 			$table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
 			$table->integer('user_id')->unsigned()->index();
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->boolean('unread')->default(true);
             $table->boolean('hidden');
             $table->timestamp('hidden_date');
 		});

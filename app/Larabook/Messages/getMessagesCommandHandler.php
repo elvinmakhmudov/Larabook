@@ -26,7 +26,7 @@ class getMessagesCommandHandler implements CommandHandler {
     {
         $hiddenDate = $this->conversationRepo->getHiddenDate($command->conversation);
 
-        $messages = $this->messageRepo->getAllFor($command->conversation, $hiddenDate);
+        $messages = $this->messageRepo->getPaginatedFor($command->conversation, $hiddenDate, 5);
 
         return $messages;
     }

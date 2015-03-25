@@ -58,12 +58,18 @@ class ConversationRepository {
      *
      * @param $id
      * @return mixed
+     * @throws ConversationIsHiddenException
+     * @throws ConversationNotFoundException
      */
     public function findAndCheck($id)
     {
         $conversation = $this->get->byIdOrFail($id);
 
-        $this->check->shownOrFail($conversation);
+        if( ! $this->check->isShown($conversation))
+        {
+            //send the hidden conversation as an argument
+            throw new ConversationIsHiddenException('Conversation is hidden', $conversation);
+        }
 
         return $conversation;
     }
@@ -162,12 +168,13 @@ class ConversationRepository {
     /**
      * Get all shown conversations with messages, senders and users attached to conversations
      *
+     * @param $howMany
      * @return array
      */
-    public function getAllShown()
+    public function getPaginatedShown($howMany = 10)
     {
         //get the conversations with messages and sender to minimize mysql queries
-        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->get()->sortByDesc('updated_at');
+        $convs = $this->currentUser->conversations()->with('messages.sender', 'users')->paginate($howMany)->sortByDesc('updated_at');
 
         return $this->getShownConvsOf($convs);
     }
@@ -191,5 +198,49 @@ class ConversationRepository {
         }
 
         return $shownConvs;
+    }
+
+
+    /**
+     * Set the unread field to false
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function setRead(Conversation $conversation)
+    {
+        return $this->set->read($conversation);
+    }
+
+    /**
+     * Get the unread conversations
+     *
+     * @return mixed
+     */
+    public function getUnreadConvs()
+    {
+        return $this->get->unreadConvs();
+    }
+
+    /**
+     * Is the given conversation unread by the current user
+     *
+     * @param Conversation $conversation
+     * @return bool
+     */
+    public function isConvUnread(Conversation $conversation)
+    {
+        return $this->check->isUnread($conversation);
+    }
+
+    /**
+     * Set the conversation as unread for the user
+     *
+     * @param User $user
+     * @param Conversation $conversation
+     */
+    public function setUnread(User $user, Conversation $conversation)
+    {
+        $this->set->unread($user, $conversation);
     }
 }

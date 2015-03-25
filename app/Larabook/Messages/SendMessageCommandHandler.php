@@ -42,6 +42,11 @@ class SendMessageCommandHandler implements CommandHandler {
 
         //send the message to the conversation
         $this->sendMessage($command->message, $conversation);
+
+        //set the conversation as read for the current User
+        $this->conversationRepo->setRead($conversation);
+
+
     }
 
     /**
@@ -76,6 +81,15 @@ class SendMessageCommandHandler implements CommandHandler {
         try
         {
             $conversation = $this->conversationRepo->findAndCheck($command->sendTo);
+
+            //get all conversation users
+            $users = $this->conversationRepo->getConversationUsers($conversation);
+
+            //set the unread field to true for all users so they can get messages
+            foreach ($users as $user)
+            {
+                $this->conversationRepo->setUnread($user, $conversation);
+            }
         }
         catch(ConversationNotFoundException $e)
         {
@@ -137,6 +151,7 @@ class SendMessageCommandHandler implements CommandHandler {
         {
            //get the conversation
             $conversation = $this->conversationRepo->getWithAndCheck($users);
+
         }
         catch(ConversationNotFoundException $e)
         {
@@ -155,6 +170,7 @@ class SendMessageCommandHandler implements CommandHandler {
             foreach ($users as $user)
             {
                 $this->conversationRepo->setShownFor($user, $conversation);
+                $this->conversationRepo->setUnread($user, $conversation);
             }
         }
 

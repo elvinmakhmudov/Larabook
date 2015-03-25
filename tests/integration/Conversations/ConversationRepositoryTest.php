@@ -136,7 +136,7 @@ class ConversationRepositoryTest extends \Codeception\TestCase\Test
     /** @test */
     public function it_gets_all_shown_conversations_for_the_current_user()
     {
-        $convs = $this->repo->getAllShown();
+        $convs = $this->repo->getPaginatedShown();
 
         //check to equality by id
         $this->assertEquals($convs[0]->id,$this->main['conversation']->id);

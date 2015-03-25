@@ -50,7 +50,7 @@ class InboxController extends \BaseController {
     /**
      * Send a message
      */
-    public function send()
+   public function send()
     {
         $input = Input::all();
 

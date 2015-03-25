@@ -125,7 +125,8 @@ return array(
         'Laracasts\Commander\CommanderServiceProvider',
         'Laracasts\Validation\ValidationServiceProvider',
         'Laracasts\Flash\FlashServiceProvider',
-        'Larabook\Providers\EventServiceProvider'
+        'Larabook\Providers\EventServiceProvider',
+        'Larabook\Composers\ComposerServiceProvider'
 	),
 
 	/*

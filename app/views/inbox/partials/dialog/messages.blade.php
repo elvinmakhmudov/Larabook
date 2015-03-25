@@ -1,5 +1,6 @@
 <div class="dialog-messages">
-    @foreach($messages as $message)
+    {{ $messages->appends(array('c'=>$conversation->id))->links() }}
+    @foreach($messages->reverse() as $message)
         <article class="media message">
             <div class="pull-left">
                 @include('users.partials.avatar', ['user' => $message->sender ])

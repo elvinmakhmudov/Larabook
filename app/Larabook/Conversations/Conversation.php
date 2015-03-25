@@ -8,7 +8,7 @@ class Conversation extends \Eloquent {
      */
     public function users()
     {
-        return $this->belongsToMany('Larabook\Users\User')->withPivot('hidden', 'hidden_date');
+        return $this->belongsToMany('Larabook\Users\User')->withPivot('hidden', 'hidden_date', 'unread');
     }
 
     /**
